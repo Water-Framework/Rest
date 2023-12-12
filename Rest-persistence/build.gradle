@@ -1,0 +1,48 @@
+
+dependencies {
+	//SLF4J
+	implementation group: 'org.slf4j', name: 'slf4j-api', version: project.slf4jVersion
+	implementation group: "javax.ws.rs", name: "javax.ws.rs-api", version: project.jaxWsRsApiVersion
+	//lombok
+	implementation group: 'org.projectlombok', name: 'lombok', version: project.lombokVersion
+	annotationProcessor 'org.projectlombok:lombok:'+project.lombokVersion
+	//Atteo
+	implementation 'org.atteo.classindex:classindex:'+project.atteoClassIndexVersion
+	annotationProcessor('org.atteo.classindex:classindex:' + project.atteoClassIndexVersion)
+
+	implementation group:'it.water.core',name:'Core-api',version:project.waterVersion
+	implementation group:'it.water.core',name:'Core-model',version:project.waterVersion
+	implementation group:'it.water.core',name:'Core-service',version:project.waterVersion
+	implementation group:'it.water.core',name:'Core-validation',version:project.waterVersion
+	implementation group:'it.water.core',name:'Core-security',version:project.waterVersion
+	implementation group:'it.water.core',name:'Core-permission',version:project.waterVersion
+
+	implementation group:'it.water.repository',name:'Repository-entity',version:project.waterVersion
+	implementation group:'it.water.repository',name:'Repository-persistence',version:project.waterVersion
+	implementation group:'it.water.repository',name:'Repository-service',version:project.waterVersion
+
+	testImplementation 'org.atteo.classindex:classindex:' + project.atteoClassIndexVersion
+	testAnnotationProcessor 'org.projectlombok:lombok:'+project.lombokVersion
+	testImplementation 'org.mockito:mockito-core:4.6.1'
+	testImplementation 'org.mockito:mockito-junit-jupiter:4.6.1'
+	testImplementation 'org.junit.jupiter:junit-jupiter-api:' + project.junitJupiterVersion
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine:' + project.junitJupiterVersion
+	testImplementation 'org.atteo.classindex:classindex:' + project.atteoClassIndexVersion
+
+	//rest runtime for test
+	testImplementation 'org.glassfish.jersey.core:jersey-client:2.34'
+	testImplementation 'org.glassfish.jersey.core:jersey-common:2.34'
+}
+
+test {
+	useJUnitPlatform()
+}
+
+publishing {
+    	publications {
+        	water(MavenPublication) {
+            	from components.java
+        	}
+    }
+ }
+ 

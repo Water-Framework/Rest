@@ -1,0 +1,10 @@
+{
+    "generator-water": {
+        "inner-project": true,
+        "project-type": "custom",
+        "projectName": "Rest",
+        "projectGroupId": "it.water.service.rest",
+        "projectVersion": "3.0.0",
+        "projectFolder": "Rest-api-manager-apache-cxf"
+    }
+}

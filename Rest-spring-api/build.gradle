@@ -1,0 +1,49 @@
+dependencies {
+    //SLF4J
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: project.slf4jVersion
+    //lombok
+    implementation group: 'org.projectlombok', name: 'lombok', version: project.lombokVersion
+    annotationProcessor 'org.projectlombok:lombok:' + project.lombokVersion
+    //Atteo
+    implementation 'org.atteo.classindex:classindex:' + project.atteoClassIndexVersion
+    annotationProcessor('org.atteo.classindex:classindex:' + project.atteoClassIndexVersion)
+    //REST
+    implementation group: "javax.ws.rs", name: "javax.ws.rs-api", version: project.jaxWsRsApiVersion
+
+    implementation 'org.springframework.boot:spring-boot-starter-web:' + project.springBootVersion
+    implementation 'org.springframework.boot:spring-boot-starter-aop:' + project.springBootVersion
+    implementation 'org.springframework.boot:spring-boot-starter-validation:' + project.springBootVersion
+
+    implementation 'io.springfox:springfox-swagger2:3.0.0'
+    implementation 'io.springfox:springfox-swagger-ui:3.0.0'
+
+    implementation group: 'it.water.core', name: 'Core-api', version: project.waterVersion
+    implementation group: 'it.water.core', name: 'Core-interceptors', version: project.waterVersion
+    implementation group: 'it.water.core', name: 'Core-model', version: project.waterVersion
+    implementation group: 'it.water.core', name: 'Core-security', version: project.waterVersion
+
+    implementation group: 'it.water.implementation', name: 'Implementation-spring', version: project.waterVersion
+
+    implementation project(":Rest-api")
+    implementation project(":Rest-service")
+    implementation project(":Rest-security")
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:' + project.springBootVersion
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:' + project.junitJupiterVersion
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:' + project.junitJupiterVersion
+    testImplementation 'org.atteo.classindex:classindex:' + project.atteoClassIndexVersion
+    testAnnotationProcessor('org.atteo.classindex:classindex:' + project.atteoClassIndexVersion)
+}
+
+test {
+    useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        water(MavenPublication) {
+            from components.java
+        }
+    }
+}
+ 

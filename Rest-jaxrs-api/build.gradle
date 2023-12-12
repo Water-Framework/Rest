@@ -1,0 +1,38 @@
+
+dependencies {
+	//SLF4J
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: project.slf4jVersion
+	//lombok
+    implementation group: 'org.projectlombok', name: 'lombok', version: project.lombokVersion
+    annotationProcessor 'org.projectlombok:lombok:'+project.lombokVersion
+	//Atteo
+	implementation 'org.atteo.classindex:classindex:'+project.atteoClassIndexVersion
+	annotationProcessor('org.atteo.classindex:classindex:' + project.atteoClassIndexVersion)
+	//REST
+	implementation group: "javax.ws.rs", name: "javax.ws.rs-api", version: project.jaxWsRsApiVersion
+	implementation group: 'javax.xml.ws', name: 'jaxws-api', version: project.jaxWsApiVersion
+
+	implementation group: 'it.water.core', name:'Core-api', version: project.waterVersion
+
+	implementation project(":Rest-api")
+
+	testAnnotationProcessor 'org.projectlombok:lombok:'+project.lombokVersion
+	testImplementation 'org.mockito:mockito-core:4.6.1'
+	testImplementation 'org.mockito:mockito-junit-jupiter:4.6.1'
+	testImplementation 'org.junit.jupiter:junit-jupiter-api:' + project.junitJupiterVersion
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine:' + project.junitJupiterVersion
+	testImplementation 'org.atteo.classindex:classindex:' + project.atteoClassIndexVersion
+}
+
+test {
+	useJUnitPlatform()
+}
+
+publishing {
+    	publications {
+        	water(MavenPublication) {
+            	from components.java
+        	}
+    }
+ }
+ 
