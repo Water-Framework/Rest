@@ -15,6 +15,10 @@
  */
 package it.water.service.rest;
 
+import it.water.core.api.registry.ComponentRegistry;
+import it.water.core.api.service.rest.RestApi;
+import it.water.core.interceptors.WaterAbstractInterceptor;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,12 +32,15 @@ import java.lang.reflect.Proxy;
  * Each Rest Controller registered will be instantiated with specific interface suppoting
  * different rest service frameworks like Spring MVC, Apache CXF or Rest Easy.
  */
-public class RestControllerProxy implements InvocationHandler {
+public class RestControllerProxy extends WaterAbstractInterceptor<RestApi> implements InvocationHandler {
     private static Logger log = LoggerFactory.getLogger(RestControllerProxy.class);
     private Object concreteRestController;
+    @Getter
+    private ComponentRegistry componentsRegistry;
 
-    public RestControllerProxy(Object concreteRestController) {
+    public RestControllerProxy(Object concreteRestController, ComponentRegistry componentRegistry) {
         this.concreteRestController = concreteRestController;
+        this.componentsRegistry = componentRegistry;
     }
 
     @Override
@@ -43,16 +50,21 @@ public class RestControllerProxy implements InvocationHandler {
         for (int i = 0; args != null && i < args.length; i++) {
             argsClasses[i] = args[i].getClass();
         }
-        //Search for the same method inside the annotated @FrameworkRestController class and invokes it
+        //Since invocation happens on the generic interface, the system must match the interface method with the implementation
+        //So we search for the same method inside the annotated @FrameworkRestController class and invokes it
         Method concreteRestControllerMethod = concreteRestController.getClass().getMethod(method.getName(), argsClasses);
-        if (concreteRestControllerMethod != null)
-            return concreteRestControllerMethod.invoke(concreteRestController, args);
+        if (concreteRestControllerMethod != null) {
+            executeInterceptorBeforeMethod((RestApi) concreteRestController, method, args);
+            Object invoke = concreteRestControllerMethod.invoke(concreteRestController, args);
+            executeInterceptorAfterMethod((RestApi) concreteRestController, method, args, invoke);
+            return invoke;
+        }
         return null;
     }
 
-    public static Object createRestProxy(Class<?> concreteRestApiInterface, Object concreteRestControllerInstance) {
+    public static Object createRestProxy(ComponentRegistry componentsRegistry,Class<?> concreteRestApiInterface, Object concreteRestControllerInstance) {
         log.debug("Creating Rest Proxy for {} with instance {}", concreteRestApiInterface, concreteRestControllerInstance);
-        RestControllerProxy restControllerProxy = new RestControllerProxy(concreteRestControllerInstance);
+        RestControllerProxy restControllerProxy = new RestControllerProxy(concreteRestControllerInstance,componentsRegistry);
         if (concreteRestApiInterface != null) {
             return Proxy.newProxyInstance(RestControllerProxy.class.getClassLoader(), new Class[]{concreteRestApiInterface}, restControllerProxy);
         }

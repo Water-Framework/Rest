@@ -15,6 +15,7 @@
  */
 package it.water.service.rest.manager.cxf;
 
+import it.water.core.api.registry.ComponentRegistry;
 import it.water.service.rest.RestControllerProxy;
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
 import org.apache.cxf.jaxrs.utils.ExceptionUtils;
@@ -42,14 +43,16 @@ public class PerRequestProxyProvider implements ResourceProvider {
     private Constructor<?> serviceClassDefaultConstructor;
     private Method postConstructMethod;
     private Method preDestroyMethod;
+    private ComponentRegistry componentRegistry;
 
     /**
      * @param concreteRestApiInterface    The Framework Rest Api Interface - which uses a specific rest framework ex. Jax RS
      * @param concreteRestControllerClass The Concrete Rest Controller which is annotated with @FrameworkRestController and references a generic Rest Api
      */
-    public PerRequestProxyProvider(Class<?> concreteRestApiInterface, Class<?> concreteRestControllerClass) {
+    public PerRequestProxyProvider(ComponentRegistry componentRegistry, Class<?> concreteRestApiInterface, Class<?> concreteRestControllerClass) {
         log.debug("Creating Per Request Proxy Provider for interface {} with implementation: {}", concreteRestApiInterface.getName(), concreteRestControllerClass.getName());
         this.concreteRestApiInterface = concreteRestApiInterface;
+        this.componentRegistry = componentRegistry;
         Optional<Constructor<?>> defaultConstructor = Arrays.stream(concreteRestControllerClass.getConstructors()).filter(constructor -> constructor.getParameterCount() == 0).findAny();
         if (defaultConstructor.isEmpty()) {
             throw new UnsupportedOperationException("@FrameworkRestController " + concreteRestControllerClass.getName() + " must have default constructor!");
@@ -65,7 +68,7 @@ public class PerRequestProxyProvider implements ResourceProvider {
         try {
             Object instance = serviceClassDefaultConstructor.newInstance();
             InjectionUtils.invokeLifeCycleMethod(instance, postConstructMethod);
-            return RestControllerProxy.createRestProxy(concreteRestApiInterface, instance);
+            return RestControllerProxy.createRestProxy(componentRegistry, concreteRestApiInterface, instance);
         } catch (Exception ex) {
             String msg = serviceClassDefaultConstructor.getDeclaringClass().getName() + " cannot be instantiated";
             throw ExceptionUtils.toInternalServerErrorException(null, serverError(msg));

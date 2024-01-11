@@ -100,7 +100,7 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
                 //Finds the concrete rest api which uses a specific rest implementation
                 Class<?> concreteRestApiInterface = findConcreteRestApi(this.frameworkRestApis, restApi);
                 //create a Per Request Resource Provider which instantiates a proxy of the correct interface per each request
-                resourceClassesAndProviders.put(concreteRestApiInterface, new PerRequestProxyProvider(concreteRestApiInterface, serviceClass));
+                resourceClassesAndProviders.put(concreteRestApiInterface, new PerRequestProxyProvider(componentRegistry,concreteRestApiInterface, serviceClass));
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
             }

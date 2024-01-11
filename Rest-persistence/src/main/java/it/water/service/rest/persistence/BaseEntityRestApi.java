@@ -98,6 +98,16 @@ public abstract class BaseEntityRestApi<T extends BaseEntity> implements Service
     }
 
     /**
+     * Response and any exceptions for find all
+     *
+     * @return response for find all
+     */
+    public PaginableResult<T> findAll() {
+        log.debug("Invoking Find All with no params rest service for {}", this.getEntityService().getEntityType().getSimpleName());
+        return this.findAll(null, null, null, null);
+    }
+
+    /**
      * Return current EntityService
      */
     protected abstract BaseEntityApi<T> getEntityService();
