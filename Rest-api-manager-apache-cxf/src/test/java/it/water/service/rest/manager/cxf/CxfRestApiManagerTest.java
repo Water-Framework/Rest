@@ -17,8 +17,13 @@ package it.water.service.rest.manager.cxf;
 
 import it.water.core.api.entity.Authenticable;
 import it.water.core.api.model.User;
-import it.water.core.testing.utils.bundle.TestInitializer;
+import it.water.core.api.registry.ComponentRegistry;
+import it.water.core.api.service.Service;
+import it.water.core.interceptors.annotations.Inject;
+import it.water.core.testing.utils.bundle.TestRuntimeInitializer;
+import it.water.core.testing.utils.junit.WaterTestExtension;
 import it.water.service.rest.api.security.jwt.JwtTokenService;
+import lombok.Setter;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -40,28 +45,9 @@ import java.io.IOException;
 /**
  * @Author Aristide Cittadino.
  */
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({MockitoExtension.class,WaterTestExtension.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class CxfRestApiManagerTest {
-    private TestInitializer testInitializer;
-
-    @BeforeAll
-    public void initializeTestFramework() throws Exception {
-        startJetty();
-        testInitializer = new TestInitializer();
-        testInitializer.withFakePermissionManager().start();
-    }
-
-    private void startJetty() throws Exception {
-        Server server = new Server(8080);
-        // Register and map the dispatcher servlet
-        final ServletHolder servletHolder = new ServletHolder(new CXFServlet());
-        final ServletContextHandler context = new ServletContextHandler();
-        context.setContextPath("/");
-        context.addServlet(servletHolder, "/water/*");
-        server.setHandler(context);
-        server.start();
-    }
+class CxfRestApiManagerTest implements Service {
 
     @Test
     void testRootRestService() throws IOException {
@@ -112,11 +98,11 @@ class CxfRestApiManagerTest {
     void testSuccessAuthenticatedOperation() throws IOException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String apiUrl = "http://localhost:8080/water/test/authenticatedOperation";
-        JwtTokenService jwtTokenService = testInitializer.getComponentRegistry().findComponent(JwtTokenService.class,null);
+        JwtTokenService jwtTokenService = TestRuntimeInitializer.getInstance().getComponentRegistry().findComponent(JwtTokenService.class, null);
         User fakeUser = new FakeUser();
-        String token = "JWT "+jwtTokenService.generateJwtToken((Authenticable) fakeUser);
+        String token = "JWT " + jwtTokenService.generateJwtToken((Authenticable) fakeUser);
         HttpGet httpGet = new HttpGet(apiUrl);
-        httpGet.setHeader("Authorization",token);
+        httpGet.setHeader("Authorization", token);
         HttpResponse response = httpClient.execute(httpGet);
         String responseBody = EntityUtils.toString(response.getEntity());
         Assertions.assertEquals(200, response.getStatusLine().getStatusCode());
