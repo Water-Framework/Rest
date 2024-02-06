@@ -99,8 +99,13 @@ public class FakeUser implements User, Authenticable {
     }
 
     @Override
-    public int getEntityVersion() {
+    public Integer getEntityVersion() {
         return 0;
+    }
+
+    @Override
+    public void setEntityVersion(Integer integer) {
+        //do nothing
     }
 
     @Override
