@@ -16,7 +16,6 @@
 package it.water.service.rest.spring;
 
 import it.water.core.api.registry.ComponentRegistry;
-import it.water.implementation.spring.annotations.EnableWaterFramework;
 import it.water.service.rest.spring.security.SpringJwtAuthenticationFilter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableWebMvc
 @ComponentScan("it.water.service.rest.*")
 @EnableSwagger2
-@EnableWaterFramework
 public class WaterRestSpringConfiguration implements WebMvcConfigurer {
     @Autowired
     @Setter

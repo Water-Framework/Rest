@@ -22,12 +22,11 @@ dependencies {
     implementation group: 'it.water.core', name: 'Core-model', version: project.waterVersion
     implementation group: 'it.water.core', name: 'Core-security', version: project.waterVersion
 
-    implementation group: 'it.water.implementation', name: 'Implementation-spring', version: project.waterVersion
-
     implementation project(":Rest-api")
     implementation project(":Rest-service")
     implementation project(":Rest-security")
 
+    testImplementation group: 'it.water.implementation', name: 'Implementation-spring', version: project.waterVersion
     testImplementation 'org.springframework.boot:spring-boot-starter-test:' + project.springBootVersion
     testImplementation 'org.junit.jupiter:junit-jupiter-api:' + project.junitJupiterVersion
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:' + project.junitJupiterVersion

@@ -16,6 +16,7 @@
 package it.water.service.rest.spring.api;
 
 import it.water.core.api.registry.ComponentRegistry;
+import it.water.implementation.spring.annotations.EnableWaterFramework;
 import it.water.service.rest.api.security.jwt.JwtTokenService;
 import it.water.service.rest.spring.WaterRestSpringConfiguration;
 import org.junit.jupiter.api.*;
@@ -38,6 +39,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @ContextConfiguration(classes = WaterRestSpringConfiguration.class)
+@EnableWaterFramework
 class RestSpringApiTest {
     @Autowired
     private TestRestTemplate template;
