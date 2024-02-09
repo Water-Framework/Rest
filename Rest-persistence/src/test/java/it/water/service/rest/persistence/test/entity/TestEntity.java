@@ -65,7 +65,7 @@ public class TestEntity implements ProtectedEntity {
     }
 
     @Override
-    public int getEntityVersion() {
+    public Integer getEntityVersion() {
         return entityVersion;
     }
 
@@ -74,7 +74,7 @@ public class TestEntity implements ProtectedEntity {
         return null;
     }
 
-    public void setEntityVersion(int entityVersion) {
+    public void setEntityVersion(Integer entityVersion) {
         this.entityVersion = entityVersion;
     }
 

@@ -1,3 +1,29 @@
+configurations {
+    includeInJar {
+        canBeResolved(true)
+        canBeConsumed(false)
+        transitive false
+    }
+
+    includeInTransitive {
+        canBeResolved(true)
+        canBeConsumed(false)
+        transitive true
+    }
+}
+
+sourceSets {
+    main {
+        compileClasspath += configurations.includeInJar
+        runtimeClasspath += configurations.includeInJar
+    }
+
+    test {
+        compileClasspath += configurations.includeInJar
+        runtimeClasspath += configurations.includeInJar
+    }
+}
+
 dependencies {
     //SLF4J
     implementation group: 'org.slf4j', name: 'slf4j-api', version: project.slf4jVersion
@@ -17,16 +43,24 @@ dependencies {
     implementation 'io.springfox:springfox-swagger2:3.0.0'
     implementation 'io.springfox:springfox-swagger-ui:3.0.0'
 
-    implementation group: 'it.water.core', name: 'Core-api', version: project.waterVersion
-    implementation group: 'it.water.core', name: 'Core-interceptors', version: project.waterVersion
-    implementation group: 'it.water.core', name: 'Core-model', version: project.waterVersion
-    implementation group: 'it.water.core', name: 'Core-security', version: project.waterVersion
+    implementation group: 'it.water.distribution', name: 'Water-distribution-spring', version: project.waterVersion
 
-    implementation project(":Rest-api")
-    implementation project(":Rest-service")
-    implementation project(":Rest-security")
+    includeInJar(project(":Rest-api"))
+    includeInJar(project(":Rest-service"))
+    includeInJar(project(":Rest-persistence"))
+    includeInJar(project(":Rest-security"))
+    includeInJar(group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: project.nimbusJoseJwtVersion)
 
-    testImplementation group: 'it.water.implementation', name: 'Implementation-spring', version: project.waterVersion
+    testImplementation(project(":Rest-api"))
+    testImplementation(project(":Rest-service"))
+    testImplementation(project(":Rest-security"))
+    testImplementation(project(":Rest-persistence"))
+    testImplementation group: 'it.water.core', name: 'Core-api', version: project.waterVersion
+    testImplementation group: 'it.water.core', name: 'Core-interceptors', version: project.waterVersion
+    testImplementation group: 'it.water.core', name: 'Core-model', version: project.waterVersion
+    testImplementation group: 'it.water.core', name: 'Core-security', version: project.waterVersion
+    testImplementation group: 'it.water.core', name: 'Core-validation', version: project.waterVersion
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test:' + project.springBootVersion
     testImplementation 'org.junit.jupiter:junit-jupiter-api:' + project.junitJupiterVersion
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:' + project.junitJupiterVersion
@@ -36,6 +70,11 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+jar {
+    from project.configurations.includeInJar.collect { it.isDirectory() ? it : zipTree(it) }
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 publishing {
