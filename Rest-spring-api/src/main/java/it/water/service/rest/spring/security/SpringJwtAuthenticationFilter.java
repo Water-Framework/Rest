@@ -15,7 +15,9 @@
  */
 package it.water.service.rest.spring.security;
 
+import it.water.core.api.bundle.Runtime;
 import it.water.core.api.registry.ComponentRegistry;
+import it.water.implementation.spring.security.SpringSecurityContext;
 import it.water.service.rest.api.security.LoggedIn;
 import it.water.service.rest.api.security.jwt.JwtTokenService;
 import it.water.service.rest.security.jwt.GenericJWTAuthFilter;
@@ -65,9 +67,12 @@ public class SpringJwtAuthenticationFilter extends GenericJWTAuthFilter implemen
                     cookie = cookies.get().getName();
             }
             JwtTokenService jwtTokenService = this.componentRegistry.findComponent(JwtTokenService.class, null);
+            //raise exception if not valid token
             this.validateToken(jwtTokenService, annotation, authorization, cookie);
+            //Fill current thread with security context
+            Runtime runtime = this.componentRegistry.findComponent(Runtime.class, null);
+            runtime.fillSecurityContext(new SpringSecurityContext(jwtTokenService.getPrincipals(getTokenFromRequest(authorization, cookie))));
         }
-        //TODO aggiungere nella request l'informazione dell'utente loggato
         return true;
     }
 

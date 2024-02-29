@@ -15,12 +15,13 @@
  */
 package it.water.service.rest.security.jwt;
 
+import it.water.core.api.service.Service;
 import it.water.core.permission.exceptions.UnauthorizedException;
-import it.water.core.testing.utils.bundle.TestInitializer;
+import it.water.core.testing.utils.bundle.TestRuntimeInitializer;
+import it.water.core.testing.utils.junit.WaterTestExtension;
 import it.water.service.rest.api.security.LoggedIn;
 import it.water.service.rest.api.security.jwt.JwtTokenService;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,17 +36,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({MockitoExtension.class, WaterTestExtension.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class RestSecurityTest {
+class RestSecurityTest implements Service {
     private static Logger logger = LoggerFactory.getLogger(RestSecurityTest.class);
-    private TestInitializer testInitializer;
-
-    @BeforeAll
-    public void initializeTestFramework() throws Exception {
-        testInitializer = new TestInitializer();
-        testInitializer.withFakePermissionManager().start();
-    }
 
     @Test
     void testJwtTokenService() {
@@ -162,18 +156,18 @@ class RestSecurityTest {
     @Test
     void testJWTURLValidation() {
         File publicKey = new File("src/test/resources/certs/public_key.json");
-        testInitializer.getApplicationProperties().override(JWTConstants.JWT_PROP_VALIDATE_BY_JWS, "true");
-        testInitializer.getApplicationProperties().override(JWTConstants.JWT_PROP_JWS_URL, publicKey.toURI().toString());
+        TestRuntimeInitializer.getInstance().getApplicationProperties().override(JWTConstants.JWT_PROP_VALIDATE_BY_JWS, "true");
+        TestRuntimeInitializer.getInstance().getApplicationProperties().override(JWTConstants.JWT_PROP_JWS_URL, publicKey.toURI().toString());
         TestUser u = new TestUser("fakeUser", Collections.emptySet());
         String token = getJwtTokenService().generateJwtToken(u);
         String jwk = getJwtTokenService().getJWK();
         System.out.println(jwk);
         Assertions.assertTrue(getJwtTokenService().validateToken(Collections.singletonList(TestUser.class.getName()), token));
-        testInitializer.getApplicationProperties().override(JWTConstants.JWT_PROP_VALIDATE_BY_JWS, "false");
+        TestRuntimeInitializer.getInstance().getApplicationProperties().override(JWTConstants.JWT_PROP_VALIDATE_BY_JWS, "false");
     }
 
 
     private JwtTokenService getJwtTokenService() {
-        return testInitializer.getComponentRegistry().findComponent(JwtTokenService.class, null);
+        return TestRuntimeInitializer.getInstance().getComponentRegistry().findComponent(JwtTokenService.class, null);
     }
 }

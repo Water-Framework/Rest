@@ -83,8 +83,13 @@ public class TestUser implements Authenticable, User {
     }
 
     @Override
-    public int getEntityVersion() {
+    public Integer getEntityVersion() {
         return 0;
+    }
+
+    @Override
+    public void setEntityVersion(Integer integer) {
+        //do nothing
     }
 
     @Override

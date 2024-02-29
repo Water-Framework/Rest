@@ -15,18 +15,18 @@
  */
 package it.water.service.rest.manager.cxf.security.filters.jwt;
 
+import it.water.core.api.bundle.Runtime;
 import it.water.core.api.model.ErrorMessage;
+import it.water.core.api.permission.SecurityContext;
 import it.water.core.api.registry.ComponentRegistry;
 import it.water.core.model.BaseError;
 import it.water.core.model.BasicErrorMessage;
 import it.water.core.model.exceptions.WaterRuntimeException;
-
 import it.water.service.rest.api.security.LoggedIn;
 import it.water.service.rest.api.security.jwt.JwtTokenService;
 import it.water.service.rest.security.jwt.GenericJWTAuthFilter;
 import it.water.service.rest.security.jwt.JWTConstants;
 import it.water.service.rest.security.jwt.JwtSecurityContext;
-import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +78,7 @@ public class CxfJwtAuthenticationFilter extends GenericJWTAuthFilter implements 
             if (info.getResourceMethod() != null) {
                 LoggedIn annotation = info.getResourceMethod().getAnnotation(LoggedIn.class);
                 validateToken(jwtTokenService, annotation, authorizationHeader, cookieVal);
-                createSecurityContext(authorizationHeader, cookieVal, requestContext);
+                createSecurityContext(authorizationHeader, cookieVal);
             }
 
         } catch (Exception e) {
@@ -95,16 +95,15 @@ public class CxfJwtAuthenticationFilter extends GenericJWTAuthFilter implements 
     }
 
     /**
-     * Injects Security context inside CXF Contenxt
+     * Injects Security context inside CXF Context
      *
-     * @param requestContext
+     * @param authorizationHeader
+     * @param cookieValue
      */
-    private void createSecurityContext(String authorizationHeader, String cookieValue, ContainerRequestContext requestContext) {
+    private void createSecurityContext(String authorizationHeader, String cookieValue) {
         String encodedToken = this.getTokenFromRequest(authorizationHeader, cookieValue);
         SecurityContext securityContext = new JwtSecurityContext(jwtTokenService.getPrincipals(encodedToken));
-        JAXRSUtils.getCurrentMessage().put(SecurityContext.class, securityContext);
-        requestContext.setSecurityContext(securityContext);
+        Runtime runtime = this.componentRegistry.findComponent(Runtime.class, null);
+        runtime.fillSecurityContext(securityContext);
     }
-
-
 }
