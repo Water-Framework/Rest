@@ -1,5 +1,5 @@
-Bundle-Name: Water OSGi Distribution
-Bundle-SymbolicName: Water-distribution-osgi
+Bundle-Name: Water Rest Module
+Bundle-SymbolicName: Water-Rest-Service
 Bundle-Activator: it.water.implementation.osgi.bundle.WaterBundleActivator
 Import-Package: \
     com.fasterxml.*,\
@@ -17,8 +17,9 @@ Import-Package: \
     javax.ws.rs.*,\
     it.water.core.*,\
     it.water.implementation.osgi.*,\
-    it.water.service.rest.*
+    it.water.repository.*
 Export-Package: \
-    it.water.service.rest.manager.cxf.*
+    it.water.service.rest.*,\
+    com.nimbusds.*
 DynamicImport-Package: *
 -fixupmessages "Classes found in the wrong directory"; restrict:=error; is:=warning

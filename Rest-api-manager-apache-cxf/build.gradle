@@ -1,60 +1,66 @@
+import aQute.bnd.gradle.Bundle
+
+plugins {
+    id "biz.aQute.bnd.builder"
+}
+
 
 dependencies {
-	//SLF4J
+    //SLF4J
     implementation group: 'org.slf4j', name: 'slf4j-api', version: project.slf4jVersion
-	//lombok
+    //lombok
     implementation group: 'org.projectlombok', name: 'lombok', version: project.lombokVersion
-    annotationProcessor 'org.projectlombok:lombok:'+project.lombokVersion
+    annotationProcessor 'org.projectlombok:lombok:' + project.lombokVersion
 
-	//REST
-	implementation group: "javax.ws.rs", name: "javax.ws.rs-api", version: project.jaxWsRsApiVersion
-	implementation group: 'javax.xml.ws', name: 'jaxws-api', version: project.jaxWsApiVersion
-	implementation group: "org.apache.cxf", name: "cxf-rt-rs-service-description-swagger", version: project.cxfVersion
-	implementation group: "org.apache.cxf", name: "cxf-rt-frontend-jaxrs", version: project.cxfVersion
-	//Jackson
-	implementation group: 'com.fasterxml.jackson.jaxrs', name: 'jackson-jaxrs-json-provider', version: project.jacksonVersion
-	//Annotations
-	implementation 'org.atteo.classindex:classindex:' + project.atteoClassIndexVersion
-	annotationProcessor('org.atteo.classindex:classindex:' + project.atteoClassIndexVersion)
+    //REST
+    implementation group: "javax.ws.rs", name: "javax.ws.rs-api", version: project.jaxWsRsApiVersion
+    implementation group: 'javax.xml.ws', name: 'jaxws-api', version: project.jaxWsApiVersion
+    implementation group: "org.apache.cxf", name: "cxf-rt-rs-service-description-swagger", version: project.cxfVersion
+    implementation group: "org.apache.cxf", name: "cxf-rt-frontend-jaxrs", version: project.cxfVersion
+    //Jackson
+    implementation group: 'com.fasterxml.jackson.jaxrs', name: 'jackson-jaxrs-json-provider', version: project.jacksonVersion
+    //Annotations
+    implementation 'org.atteo.classindex:classindex:' + project.atteoClassIndexVersion
+    annotationProcessor('org.atteo.classindex:classindex:' + project.atteoClassIndexVersion)
 
-	implementation group: 'it.water.core', name:'Core-api', version: project.waterVersion
-	implementation group: 'it.water.core', name:'Core-interceptors', version: project.waterVersion
-	implementation group: 'it.water.core', name:'Core-security', version: project.waterVersion
-	implementation group: 'it.water.core', name:'Core-model', version: project.waterVersion
+    implementation group: 'it.water.core', name: 'Core-api', version: project.waterVersion
+    implementation group: 'it.water.core', name: 'Core-interceptors', version: project.waterVersion
+    implementation group: 'it.water.core', name: 'Core-security', version: project.waterVersion
+    implementation group: 'it.water.core', name: 'Core-model', version: project.waterVersion
 
-	implementation project(":Rest-api")
-	implementation project(":Rest-security")
-	implementation project(":Rest-service")
-	implementation project(":Rest-jaxrs-api")
+    implementation project(":Rest-api")
+    implementation project(":Rest-security")
+    implementation project(":Rest-service")
 
-	testImplementation group:'it.water.core',name:'Core-bundle',version:project.waterVersion
-	testImplementation group:'it.water.core',name:'Core-security',version:project.waterVersion
-	testImplementation group:'it.water.core',name:'Core-testing-utils',version:project.waterVersion
+    testImplementation group: 'it.water.core', name: 'Core-bundle', version: project.waterVersion
+    testImplementation group: 'it.water.core', name: 'Core-security', version: project.waterVersion
+    testImplementation group: 'it.water.core', name: 'Core-testing-utils', version: project.waterVersion
 
-	testAnnotationProcessor 'org.projectlombok:lombok:'+project.lombokVersion
-	testImplementation 'org.mockito:mockito-core:4.6.1'
-	testImplementation 'org.mockito:mockito-junit-jupiter:4.6.1'
-	testImplementation 'org.junit.jupiter:junit-jupiter-api:' + project.junitJupiterVersion
-	testImplementation 'org.junit.jupiter:junit-jupiter-engine:' + project.junitJupiterVersion
-	testImplementation 'org.atteo.classindex:classindex:' + project.atteoClassIndexVersion
-	testImplementation group: 'org.reflections', name: 'reflections', version: '0.10.2'
-	testImplementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
-	testImplementation group: 'org.apache.cxf', name: 'cxf-rt-transports-http-jetty', version: project.cxfVersion
-	testImplementation group: 'org.springframework', name: 'spring-web', version: '5.3.22'
-	testImplementation group: 'org.springframework', name: 'spring-context', version: '5.3.22'
-	//with 9.4.4 tests won't work because of the integration between cxf and jetty outside karaf context
-	testImplementation group: 'org.eclipse.jetty', name: 'jetty-servlet', version: '9.4.49.v20220914'
+    testAnnotationProcessor 'org.projectlombok:lombok:' + project.lombokVersion
+    testImplementation 'org.mockito:mockito-core:4.6.1'
+    testImplementation 'org.mockito:mockito-junit-jupiter:4.6.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:' + project.junitJupiterVersion
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:' + project.junitJupiterVersion
+    testImplementation 'org.atteo.classindex:classindex:' + project.atteoClassIndexVersion
+    testImplementation group: 'org.reflections', name: 'reflections', version: '0.10.2'
+    testImplementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
+    testImplementation group: 'org.apache.cxf', name: 'cxf-rt-transports-http-jetty', version: project.cxfVersion
+    testImplementation group: 'org.springframework', name: 'spring-web', version: '5.3.22'
+    testImplementation group: 'org.springframework', name: 'spring-context', version: '5.3.22'
+    //with 9.4.4 tests won't work because of the integration between cxf and jetty outside karaf context
+    testImplementation group: 'org.eclipse.jetty', name: 'jetty-servlet', version: '9.4.49.v20220914'
 }
 
 test {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 
+
 publishing {
-    	publications {
-        	water(MavenPublication) {
-            	from components.java
-        	}
+    publications {
+        water(MavenPublication) {
+            from components.java
+        }
     }
- }
+}
  

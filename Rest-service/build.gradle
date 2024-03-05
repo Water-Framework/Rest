@@ -1,4 +1,16 @@
+import aQute.bnd.gradle.Bundle
 
+plugins {
+	id "biz.aQute.bnd.builder"
+}
+
+configurations {
+	importFrameworkComponents {
+		canBeResolved true
+		canBeConsumed false
+		transitive false
+	}
+}
 
 dependencies {
 	//SLF4J
@@ -25,6 +37,13 @@ dependencies {
 	implementation group: "it.water.repository", name: "Repository-service", version:project.waterVersion
 	//Project Dependencies	
 	implementation project(":Rest-api")
+	implementation project(":Rest-jaxrs-api")
+	implementation project(":Rest-security")
+	implementation project(":Rest-persistence")
+
+	importFrameworkComponents project(":Rest-security")
+
+	implementation(group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: project.nimbusJoseJwtVersion)
 
 	testAnnotationProcessor 'org.projectlombok:lombok:'+project.lombokVersion
 	testImplementation 'org.mockito:mockito-core:4.6.1'
@@ -37,14 +56,24 @@ dependencies {
 	testImplementation 'org.glassfish.jersey.core:jersey-common:2.34'
 }
 
-jar {
-	manifest {
-		attributes('dsannotations': '*')
-	}
-}
 
 test {
 	useJUnitPlatform()
+}
+
+
+jar {
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+	doFirst {
+		def annotationsPath = "$buildDir/classes/java/main/META-INF/annotations"
+		def serviceDir = file(annotationsPath)
+		// copy all deps annotations
+		for (file in project.configurations.importFrameworkComponents) {
+			zipTree(file).matching { include 'META-INF/annotations/*' }.each { f ->
+				new File(serviceDir, f.name) << f.getText("UTF-8")
+			}
+		}
+	}
 }
 
 publishing {
