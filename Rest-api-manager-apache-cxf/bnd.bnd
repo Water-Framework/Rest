@@ -8,16 +8,16 @@ Import-Package: \
     org.osgi.service.*,\
     org.osgi.util.*,\
     org.slf4j.*,\
-    org.hibernate.validator;version='${range;[=,+)}',\
-    org.hibernate.validator.*;version='${range;[=,+)}',\
-    org.hibernate.annotations;version='[5,6)',\
     javassist.util.proxy,\
     jakarta.validation,\
     jakarta.validation.*,\
     javax.ws.rs.*,\
     it.water.core.*,\
     it.water.implementation.osgi.*,\
-    it.water.service.rest.*
+    it.water.service.rest.api.*,\
+    it.water.service.rest.api.options.*,\
+    it.water.service.rest.jaxrs.*,\
+    it.water.service.rest.security.*
 Export-Package: \
     it.water.service.rest.manager.cxf.*
 DynamicImport-Package: *

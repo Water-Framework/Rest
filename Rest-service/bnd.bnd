@@ -17,6 +17,10 @@ Import-Package: \
     it.water.repository.*
 Export-Package: \
     it.water.service.rest.*,\
+    it.water.service.rest.api.*,\
+    it.water.service.rest.api.options.*,\
+    it.water.service.rest.jaxrs.*,\
+    it.water.service.rest.security.*,\
     com.nimbusds.*
 DynamicImport-Package: *
 -fixupmessages "Classes found in the wrong directory"; restrict:=error; is:=warning

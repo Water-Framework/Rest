@@ -42,6 +42,7 @@ dependencies {
 	implementation project(":Rest-persistence")
 
 	importFrameworkComponents project(":Rest-security")
+	importFrameworkComponents project(":Rest-jaxrs-api")
 
 	implementation(group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: project.nimbusJoseJwtVersion)
 
