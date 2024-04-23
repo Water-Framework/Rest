@@ -17,8 +17,12 @@ package it.water.service.rest.manager.cxf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import it.water.core.api.interceptors.OnActivate;
+import it.water.core.api.interceptors.OnDeactivate;
 import it.water.core.api.registry.ComponentRegistry;
+import it.water.core.api.service.rest.RestApi;
 import it.water.core.api.service.rest.RestApiManager;
+import it.water.core.api.service.rest.RestApiRegistry;
 import it.water.core.interceptors.annotations.FrameworkComponent;
 import it.water.core.interceptors.annotations.Inject;
 import it.water.service.rest.AbstractRestApiManager;
@@ -55,22 +59,19 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
     @Inject
     @Setter
     private ComponentRegistry componentRegistry;
+    @Inject
+    @Setter
+    private RestApiRegistry restApiRegistry;
     //used for jackson serialization
     private ObjectMapper jacksonObjectMapper;
     private Server server;
     private boolean stopped = true;
-    private Iterable<Class<?>> frameworkRestApis;
     private CxfJwtAuthenticationFilter jwtAuthenticationFilter;
-
     public CxfRestApiManager() {
         this.jacksonObjectMapper = new ObjectMapper();
     }
 
-    @Override
-    public void setAnnotatedRestApis(Iterable<Class<?>> frameworkRestApis) {
-        this.frameworkRestApis = frameworkRestApis;
-    }
-
+    @OnActivate
     @Override
     public synchronized void startRestApiServer() {
         if (!stopped)
@@ -93,14 +94,15 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
         factory.setFeatures(features);
         factory.setProviders(providers);
         Map<Class<?>, ResourceProvider> resourceClassesAndProviders = new HashMap<>();
-        this.getRegisteredApis().forEach(restApi -> {
+        Map<Class<? extends RestApi>, Class<?>> registeredApis = this.restApiRegistry.getRegisteredRestApis();
+        registeredApis.keySet().forEach(restApi -> {
             try {
                 //finds the concrete rest controller which has @FrameworkRestController
-                Class<?> serviceClass = this.getRestImplementation(restApi);
+                Class<?> serviceClass = registeredApis.get(restApi);
                 //Finds the concrete rest api which uses a specific rest implementation
-                Class<?> concreteRestApiInterface = findConcreteRestApi(this.frameworkRestApis, restApi);
+                Class<?> concreteRestApiInterface = restApi;
                 //create a Per Request Resource Provider which instantiates a proxy of the correct interface per each request
-                resourceClassesAndProviders.put(concreteRestApiInterface, new PerRequestProxyProvider(componentRegistry,concreteRestApiInterface, serviceClass));
+                resourceClassesAndProviders.put(concreteRestApiInterface, new PerRequestProxyProvider(componentRegistry, concreteRestApiInterface, serviceClass));
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
             }
@@ -122,15 +124,18 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
     }
 
     @Override
+    @OnDeactivate
     public synchronized void stopRestApiServer() {
         try {
-            server.stop();
+            if (server != null)
+                server.stop();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
 
         try {
-            server.destroy();
+            if (server != null)
+                server.destroy();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

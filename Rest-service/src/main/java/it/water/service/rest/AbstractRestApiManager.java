@@ -15,44 +15,8 @@
  */
 package it.water.service.rest;
 
-import it.water.core.api.registry.ComponentRegistry;
-import it.water.core.api.service.rest.RestApi;
 import it.water.core.api.service.rest.RestApiManager;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 public abstract class AbstractRestApiManager implements RestApiManager {
-    private Map<Class<? extends RestApi>, Class<?>> registeredRestApis = new HashMap<>();
-    @Setter
-    @Getter(AccessLevel.PROTECTED)
-    private ComponentRegistry componentRegistry;
-
-    @Override
-    public void addRestApiService(Class<? extends RestApi> restApi, Class<?> restImplementation) {
-        this.registeredRestApis.put(restApi, restImplementation);
-        this.startRestApiServer();
-    }
-
-    @Override
-    public void removeRestApiService(Class<? extends RestApi> restApi) {
-        this.registeredRestApis.remove(restApi);
-        this.startRestApiServer();
-    }
-
-    @Override
-    public Class<?> getRestImplementation(Class<? extends RestApi> restApi) {
-        return registeredRestApis.get(restApi);
-    }
-
-    @Override
-    public Set<Class<? extends RestApi>> getRegisteredApis() {
-        return Collections.unmodifiableSet(registeredRestApis.keySet());
-    }
 
 }
