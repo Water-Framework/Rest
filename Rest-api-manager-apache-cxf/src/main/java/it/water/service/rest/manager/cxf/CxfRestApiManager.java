@@ -67,6 +67,7 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
     private Server server;
     private boolean stopped = true;
     private CxfJwtAuthenticationFilter jwtAuthenticationFilter;
+
     public CxfRestApiManager() {
         this.jacksonObjectMapper = new ObjectMapper();
     }
@@ -179,9 +180,10 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
             log.warn(e.getMessage(), e);
         }
         //creating if not exists and adding jwt Authentication filter
-        if (this.jwtAuthenticationFilter == null)
+        if (this.restOptions.securityOptions().validateJwt() && this.jwtAuthenticationFilter == null)
             this.jwtAuthenticationFilter = new CxfJwtAuthenticationFilter(this.componentRegistry);
-        filters.add(this.jwtAuthenticationFilter);
+        if(this.jwtAuthenticationFilter != null)
+            filters.add(this.jwtAuthenticationFilter);
         return filters;
     }
 

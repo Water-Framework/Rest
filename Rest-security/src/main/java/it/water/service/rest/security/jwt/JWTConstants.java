@@ -23,10 +23,11 @@ public class JWTConstants {
     public static final String JWT_CLAIM_ROLES = "roles";
     public static final String JWT_CLAIM_LOGGED_ENTITY_ID = "loggedEntityId";
     public static final String JWT_CLAIM_IS_ADMIN = "isAdmin";
-    public static final String JWT_PROP_VALIDATE_BY_JWS = "water.service.rest.security.jwt.validate.by.jws";
-    public static final String JWT_PROP_VALIDATE_BY_JWS_KEY_ID = "water.service.rest.security.jwt.validate.by.jws.key.id";
-    public static final String JWT_PROP_ENCRYPT_JWT_TOKEN = "water.service.rest.security.jwt.encrypt";
-    public static final String JWT_PROP_JWS_URL = "water.service.rest.security.jwt.jws.url";
+    public static final String JWT_PROP_VALIDATION_ENABLED = "water.rest.security.jwt.validate";
+    public static final String JWT_PROP_VALIDATE_BY_JWS = "water.rest.security.jwt.validate.by.jws";
+    public static final String JWT_PROP_VALIDATE_BY_JWS_KEY_ID = "water.rest.security.jwt.validate.by.jws.key.id";
+    public static final String JWT_PROP_ENCRYPT_JWT_TOKEN = "water.rest.security.jwt.encrypt";
+    public static final String JWT_PROP_JWS_URL = "water.rest.security.jwt.jws.url";
     public static final String JWT_PROP_JWT_DURATION_MILLIS = "water.rest.security.jwt.duration.millis";
     public static final String JWT_COOKIE_NAME = "HIT-AUTH";
 }

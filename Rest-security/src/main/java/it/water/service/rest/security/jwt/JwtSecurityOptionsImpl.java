@@ -89,4 +89,11 @@ public class JwtSecurityOptionsImpl implements JwtSecurityOptions {
         log.debug(DEBUG_MSG, "jwtTokenDurationMillis", value);
         return value;
     }
+
+    @Override
+    public boolean validateJwt() {
+        boolean validationEnabled = applicationProperties.getPropertyOrDefault(JWTConstants.JWT_PROP_VALIDATION_ENABLED, true);
+        log.debug(DEBUG_MSG, "jwt Validation Enabled", validationEnabled);
+        return validationEnabled;
+    }
 }

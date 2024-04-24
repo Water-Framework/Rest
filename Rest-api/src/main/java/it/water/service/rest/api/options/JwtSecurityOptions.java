@@ -22,6 +22,7 @@ import it.water.core.api.service.Service;
  * Class which maps all the rest security available options
  */
 public interface JwtSecurityOptions extends Service {
+    boolean validateJwt();
     boolean validateJwtWithJwsUrl();
     String jwtKeyId();
     boolean encryptJWTToken();
