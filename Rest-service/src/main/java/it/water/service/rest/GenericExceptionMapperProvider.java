@@ -17,19 +17,21 @@
 
 package it.water.service.rest;
 
-import it.water.repository.entity.model.exceptions.DuplicateEntityException;
-import it.water.repository.entity.model.exceptions.EntityNotFound;
-import it.water.repository.entity.model.exceptions.NoResultException;
 import it.water.core.model.BaseError;
 import it.water.core.model.BasicErrorMessage;
 import it.water.core.model.exceptions.ValidationException;
 import it.water.core.permission.exceptions.UnauthorizedException;
+import it.water.repository.entity.model.exceptions.DuplicateEntityException;
+import it.water.repository.entity.model.exceptions.EntityNotFound;
+import it.water.repository.entity.model.exceptions.NoResultException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Arrays;
 
 /**
@@ -68,8 +70,13 @@ public class GenericExceptionMapperProvider implements ExceptionMapper<Throwable
 
     public Response toResponse(Throwable ex) {
         log.error(ex.getMessage(), ex);
+
         if (ex instanceof Error)
             return handleError((Error) ex);
+        else if (ex instanceof UndeclaredThrowableException) {
+            ex = ((UndeclaredThrowableException) ex).getUndeclaredThrowable();
+        }
+
         BaseError error = handleException((Exception) ex);
         return Response.status(error.getStatusCode()).entity(error).build();
     }
@@ -77,6 +84,9 @@ public class GenericExceptionMapperProvider implements ExceptionMapper<Throwable
     protected BaseError handleException(Exception t) {
         BaseError response = null;
         try {
+            if (t instanceof InvocationTargetException) {
+                throw (Exception) ((InvocationTargetException) t).getTargetException();
+            }
             throw t;
         } catch (DuplicateEntityException e) {
             log.error("Save failed: entity is duplicated!");
