@@ -33,7 +33,6 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-web:' + project.springBootVersion
     implementation 'org.springframework.boot:spring-boot-starter-aop:' + project.springBootVersion
-    implementation 'org.springframework.boot:spring-boot-starter-validation:' + project.springBootVersion
 
     implementation 'io.springfox:springfox-swagger2:3.0.0'
     implementation 'io.springfox:springfox-swagger-ui:3.0.0'
@@ -51,7 +50,7 @@ dependencies {
     testImplementation group: 'it.water.core', name: 'Core-interceptors', version: project.waterVersion
     testImplementation group: 'it.water.core', name: 'Core-model', version: project.waterVersion
     testImplementation group: 'it.water.core', name: 'Core-security', version: project.waterVersion
-    testImplementation group: 'it.water.core', name: 'Core-validation', version: project.waterVersion
+    testImplementation group: 'it.water.core', name: 'Core-validation-javax', version: project.waterVersion
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test:' + project.springBootVersion
     testImplementation 'org.junit.jupiter:junit-jupiter-api:' + project.junitJupiterVersion
