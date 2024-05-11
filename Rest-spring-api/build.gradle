@@ -39,9 +39,9 @@ dependencies {
 
     implementation group: 'it.water.distribution', name: 'Water-distribution-spring', version: project.waterVersion
 
+    implementation project(":Rest-api")
     includeInJar(project(":Rest-service"))
 
-    testImplementation(project(":Rest-api"))
     testImplementation(project(":Rest-service"))
     testImplementation(project(":Rest-security"))
     testImplementation(project(":Rest-persistence"))

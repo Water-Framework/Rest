@@ -44,11 +44,6 @@ public class FakeUser implements User, Authenticable {
     }
 
     @Override
-    public boolean hasRole(String s) {
-        return false;
-    }
-
-    @Override
     public boolean isAdmin() {
         return false;
     }
