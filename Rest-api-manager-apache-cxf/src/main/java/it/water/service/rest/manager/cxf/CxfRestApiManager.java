@@ -15,7 +15,6 @@
  */
 package it.water.service.rest.manager.cxf;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import it.water.core.api.interceptors.OnActivate;
 import it.water.core.api.interceptors.OnDeactivate;
@@ -27,6 +26,7 @@ import it.water.core.interceptors.annotations.FrameworkComponent;
 import it.water.core.interceptors.annotations.Inject;
 import it.water.service.rest.AbstractRestApiManager;
 import it.water.service.rest.GenericExceptionMapperProvider;
+import it.water.service.rest.api.WaterJacksonMapper;
 import it.water.service.rest.api.options.RestOptions;
 import it.water.service.rest.manager.cxf.security.filters.jwt.CxfJwtAuthenticationFilter;
 import lombok.Setter;
@@ -62,15 +62,14 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
     @Inject
     @Setter
     private RestApiRegistry restApiRegistry;
-    //used for jackson serialization
-    private ObjectMapper jacksonObjectMapper;
+
+    @Inject
+    @Setter
+    private WaterJacksonMapper waterJacksonMapper;
+
     private Server server;
     private boolean stopped = true;
     private CxfJwtAuthenticationFilter jwtAuthenticationFilter;
-
-    public CxfRestApiManager() {
-        this.jacksonObjectMapper = new ObjectMapper();
-    }
 
     @OnActivate
     @Override
@@ -169,7 +168,7 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
     }
 
     private JacksonJsonProvider getJacksonJsonProvider() {
-        return new JacksonJsonProvider(this.jacksonObjectMapper);
+        return new JacksonJsonProvider(this.waterJacksonMapper.getJacksonMapper());
     }
 
     private List<ContainerRequestFilter> getContainerRequestFilters() {
@@ -182,7 +181,7 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
         //creating if not exists and adding jwt Authentication filter
         if (this.restOptions.securityOptions().validateJwt() && this.jwtAuthenticationFilter == null)
             this.jwtAuthenticationFilter = new CxfJwtAuthenticationFilter(this.componentRegistry);
-        if(this.jwtAuthenticationFilter != null)
+        if (this.jwtAuthenticationFilter != null)
             filters.add(this.jwtAuthenticationFilter);
         return filters;
     }
