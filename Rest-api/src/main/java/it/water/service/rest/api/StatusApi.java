@@ -21,7 +21,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import it.water.core.api.service.rest.RestApi;
 
-import javax.ws.rs.core.MediaType;
 
 /**
  * @Author Aristide Cittadino
@@ -31,9 +30,9 @@ import javax.ws.rs.core.MediaType;
  * The framework will search for an interfaces which extends StatusApi. This interfaces should override same method of Status API
  * Using specific technology annotations ex. Spring MVC or Apache CXF (Jax RS annotations)
  */
-@Api(produces = MediaType.TEXT_PLAIN, tags = "Status API")
+@Api(produces = "test/plain", tags = "Status API")
 public interface StatusApi extends RestApi {
-    @ApiOperation(value = "/status", notes = "Check application status", httpMethod = "GET", produces = MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "/status", notes = "Check application status", httpMethod = "GET", produces = "text/plain")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation"),
             @ApiResponse(code = 401, message = "Not authorized"),
