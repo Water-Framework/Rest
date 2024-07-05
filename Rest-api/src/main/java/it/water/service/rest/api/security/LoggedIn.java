@@ -17,7 +17,8 @@
 package it.water.service.rest.api.security;
 
 
-import javax.ws.rs.NameBinding;
+import jakarta.ws.rs.NameBinding;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -29,8 +30,8 @@ import java.lang.annotation.Target;
  * Annotation to use on JAX-RS methods for identifying authenticated requests
  */
 @NameBinding
-@Target({ ElementType.TYPE, ElementType.METHOD })
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface LoggedIn {
-    String[] issuers() default {"it.hyperiot.base.api.HyperIoTUser"};
+    String[] issuers() default {"it.water.core.api.model.User"};
 }

@@ -2,7 +2,7 @@
 dependencies {
 	//SLF4J
 	implementation group: 'org.slf4j', name: 'slf4j-api', version: project.slf4jVersion
-	implementation group: "javax.ws.rs", name: "javax.ws.rs-api", version: project.jaxWsRsApiVersion
+	implementation group: "jakarta.ws.rs", name: "jakarta.ws.rs-api", version: project.jakartaRsApiVersion
 	//lombok
 	implementation group: 'org.projectlombok', name: 'lombok', version: project.lombokVersion
 	annotationProcessor 'org.projectlombok:lombok:'+project.lombokVersion

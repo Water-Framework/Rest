@@ -29,7 +29,7 @@ dependencies {
     implementation 'org.atteo.classindex:classindex:' + project.atteoClassIndexVersion
     annotationProcessor('org.atteo.classindex:classindex:' + project.atteoClassIndexVersion)
     //REST
-    implementation group: "javax.ws.rs", name: "javax.ws.rs-api", version: project.jaxWsRsApiVersion
+    implementation group: "jakarta.ws.rs", name: "jakarta.ws.rs-api", version: project.jakartaRsApiVersion
 
     implementation 'org.springframework.boot:spring-boot-starter-web:' + project.springBootVersion
     implementation 'org.springframework.boot:spring-boot-starter-aop:' + project.springBootVersion
@@ -41,16 +41,17 @@ dependencies {
 
     implementation project(":Rest-api")
     includeInJar(project(":Rest-service"))
+    implementation project(":Rest-security")
+    includeInJar(project(":Rest-security"))
 
     testImplementation(project(":Rest-service"))
-    testImplementation(project(":Rest-security"))
     testImplementation(project(":Rest-persistence"))
 
     testImplementation group: 'it.water.core', name: 'Core-api', version: project.waterVersion
     testImplementation group: 'it.water.core', name: 'Core-interceptors', version: project.waterVersion
     testImplementation group: 'it.water.core', name: 'Core-model', version: project.waterVersion
     testImplementation group: 'it.water.core', name: 'Core-security', version: project.waterVersion
-    testImplementation group: 'it.water.core', name: 'Core-validation-javax', version: project.waterVersion
+    testImplementation group: 'it.water.core', name: 'Core-validation', version: project.waterVersion
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test:' + project.springBootVersion
     testImplementation 'org.junit.jupiter:junit-jupiter-api:' + project.junitJupiterVersion

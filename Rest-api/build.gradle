@@ -2,7 +2,7 @@ dependencies {
     //SLF4J
     implementation group: 'org.slf4j', name: 'slf4j-api', version: project.slf4jVersion
     //JAXRS
-    implementation group: "javax.ws.rs", name: "javax.ws.rs-api", version: project.jaxWsRsApiVersion
+    implementation group: "jakarta.ws.rs", name: "jakarta.ws.rs-api", version: project.jakartaRsApiVersion
     // https://mvnrepository.com/artifact/io.swagger/swagger-jaxrs
     implementation group: 'io.swagger', name: 'swagger-jaxrs', version: project.swaggerJaxRsVersion
     //WaterBase Dependencies

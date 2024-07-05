@@ -116,9 +116,4 @@ public class TestUser implements Authenticable, User {
     public String getUsername() {
         return screenName;
     }
-
-    @Override
-    public boolean hasRole(String s) {
-        return roles.stream().filter(role -> role.getName().equals(s)).findAny().isPresent();
-    }
 }

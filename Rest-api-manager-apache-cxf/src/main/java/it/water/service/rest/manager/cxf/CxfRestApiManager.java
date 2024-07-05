@@ -15,7 +15,7 @@
  */
 package it.water.service.rest.manager.cxf;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import it.water.core.api.interceptors.OnActivate;
 import it.water.core.api.interceptors.OnDeactivate;
 import it.water.core.api.registry.ComponentRegistry;
@@ -29,16 +29,17 @@ import it.water.service.rest.GenericExceptionMapperProvider;
 import it.water.service.rest.api.WaterJacksonMapper;
 import it.water.service.rest.api.options.RestOptions;
 import it.water.service.rest.manager.cxf.security.filters.jwt.CxfJwtAuthenticationFilter;
+import jakarta.ws.rs.container.ContainerRequestFilter;
 import lombok.Setter;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.Feature;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
-import org.apache.cxf.jaxrs.swagger.Swagger2Feature;
+import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
+import org.apache.cxf.jaxrs.swagger.ui.SwaggerUiConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.container.ContainerRequestFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,16 +75,21 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
     @OnActivate
     @Override
     public synchronized void startRestApiServer() {
+        if (this.restApiRegistry == null)
+            return;
         if (!stopped)
             this.stopRestApiServer();
-        String restRootContext = this.restOptions.restRootContext();
+
+        String restRootContext = (this.restOptions != null) ? this.restOptions.restRootContext() : "/water";
         log.info("Registering base REST resources under : {}", restRootContext);
         // configuring CXF Server with interceptors,features and providers
         List<Feature> features = new ArrayList<>();
-        features.add(addSwaggerFeature());
+        features.add(addOpenApiFeature());
         //configuring providers
         List<Object> providers = new ArrayList<>();
-        providers.add(getJacksonJsonProvider());
+        JacksonJsonProvider jacksonJsonProvider = getJacksonJsonProvider();
+        if (jacksonJsonProvider != null)
+            providers.add(jacksonJsonProvider);
         providers.add(getGenericExceptionMapper());
         //all filters registered as @FrameworkComponent will be added
         List<ContainerRequestFilter> filters = getContainerRequestFilters();
@@ -150,17 +156,19 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
         return server;
     }
 
-    private Swagger2Feature addSwaggerFeature() {
+    private OpenApiFeature addOpenApiFeature() {
         log.info("Registering Swagger Feature");
-        String contextRoot = this.restOptions.restRootContext();
-        Swagger2Feature swagger = new Swagger2Feature();
-        swagger.setTitle(contextRoot + ": Application Rest Services ");
-        swagger.setDescription("List of all " + contextRoot + " rest services");
-        swagger.setUsePathBasedConfig(true); // Necessary for OSGi
-        swagger.setPrettyPrint(true);
-        swagger.setBasePath(contextRoot);
-        swagger.setSupportSwaggerUi(true);
-        return swagger;
+        String contextRoot = (this.restOptions != null) ? this.restOptions.restRootContext() : "/water";
+        OpenApiFeature openApiFeature = new OpenApiFeature();
+        openApiFeature.setTitle(contextRoot + ": Application Rest Services ");
+        openApiFeature.setDescription("List of all " + contextRoot + " rest services");
+        openApiFeature.setLicenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html");
+        openApiFeature.setPrettyPrint(true);
+        openApiFeature.setSupportSwaggerUi(true);
+        SwaggerUiConfig swaggerUiConfig = new SwaggerUiConfig();
+        swaggerUiConfig.setUrl("/swagger.json");
+        openApiFeature.setSwaggerUiConfig(swaggerUiConfig);
+        return openApiFeature;
     }
 
     private GenericExceptionMapperProvider getGenericExceptionMapper() {
@@ -168,7 +176,9 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
     }
 
     private JacksonJsonProvider getJacksonJsonProvider() {
-        return new JacksonJsonProvider(this.waterJacksonMapper.getJacksonMapper());
+        if (this.waterJacksonMapper != null)
+            return new JacksonJsonProvider(this.waterJacksonMapper.getJacksonMapper());
+        return null;
     }
 
     private List<ContainerRequestFilter> getContainerRequestFilters() {
@@ -179,7 +189,7 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
             log.warn(e.getMessage(), e);
         }
         //creating if not exists and adding jwt Authentication filter
-        if (this.restOptions.securityOptions().validateJwt() && this.jwtAuthenticationFilter == null)
+        if (this.restOptions != null && this.restOptions.securityOptions() != null && this.restOptions.securityOptions().validateJwt() && this.jwtAuthenticationFilter == null)
             this.jwtAuthenticationFilter = new CxfJwtAuthenticationFilter(this.componentRegistry);
         if (this.jwtAuthenticationFilter != null)
             filters.add(this.jwtAuthenticationFilter);

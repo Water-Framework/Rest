@@ -17,6 +17,7 @@ package it.water.service.rest.manager.cxf;
 
 import it.water.core.api.registry.ComponentRegistry;
 import it.water.service.rest.RestControllerProxy;
+import jakarta.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
 import org.apache.cxf.jaxrs.utils.ExceptionUtils;
 import org.apache.cxf.jaxrs.utils.InjectionUtils;
@@ -26,7 +27,6 @@ import org.apache.cxf.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.Response;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;

@@ -24,12 +24,12 @@ import it.water.core.permission.exceptions.UnauthorizedException;
 import it.water.repository.entity.model.exceptions.DuplicateEntityException;
 import it.water.repository.entity.model.exceptions.EntityNotFound;
 import it.water.repository.entity.model.exceptions.NoResultException;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Arrays;

@@ -13,12 +13,13 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:' + project.lombokVersion
 
     //REST
-    implementation group: "javax.ws.rs", name: "javax.ws.rs-api", version: project.jaxWsRsApiVersion
-    implementation group: 'javax.xml.ws', name: 'jaxws-api', version: project.jaxWsApiVersion
-    implementation group: "org.apache.cxf", name: "cxf-rt-rs-service-description-swagger", version: project.cxfVersion
-    implementation group: "org.apache.cxf", name: "cxf-rt-frontend-jaxrs", version: project.cxfVersion
+    implementation group: 'jakarta.ws.rs', name: 'jakarta.ws.rs-api', version: project.jakartaRsApiVersion
+    implementation group: 'jakarta.xml.ws', name: 'jakarta.xml.ws-api', version: project.jakartaWsApiVersion
+    //needed for osgi runtime since cxf requires it but it is not an osgi bundle
+    implementation group: 'org.glassfish.jaxb', name:'txw2', version:'3.0.2'
+    implementation group: "org.apache.cxf", name: "cxf-rt-rs-service-description-openapi-v3", version: project.cxfServiceDescriptionOpenApiVersion
     //Jackson
-    implementation group: 'com.fasterxml.jackson.jaxrs', name: 'jackson-jaxrs-json-provider', version: project.jacksonVersion
+    implementation group: 'com.fasterxml.jackson.jakarta.rs', name: 'jackson-jakarta-rs-json-provider', version: project.jacksonJsonProviderVersion
     //Annotations
     implementation 'org.atteo.classindex:classindex:' + project.atteoClassIndexVersion
     annotationProcessor('org.atteo.classindex:classindex:' + project.atteoClassIndexVersion)
@@ -43,12 +44,12 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:' + project.junitJupiterVersion
     testImplementation 'org.atteo.classindex:classindex:' + project.atteoClassIndexVersion
     testImplementation group: 'org.reflections', name: 'reflections', version: '0.10.2'
-    testImplementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
+    testImplementation group: 'org.apache.httpcomponents.client5', name: 'httpclient5', version: project.apacheHttpComponentsClientVersion
     testImplementation group: 'org.apache.cxf', name: 'cxf-rt-transports-http-jetty', version: project.cxfVersion
-    testImplementation group: 'org.springframework', name: 'spring-web', version: '5.3.22'
-    testImplementation group: 'org.springframework', name: 'spring-context', version: '5.3.22'
+    testImplementation group: 'org.springframework', name: 'spring-web', version: project.springWebVersion
+    testImplementation group: 'org.springframework', name: 'spring-context', version: project.springContextVersion
     //with 9.4.4 tests won't work because of the integration between cxf and jetty outside karaf context
-    testImplementation group: 'org.eclipse.jetty', name: 'jetty-servlet', version: '9.4.49.v20220914'
+    testImplementation group: 'org.eclipse.jetty', name: 'jetty-servlet', version: project.jettyVersion
 }
 
 test {
