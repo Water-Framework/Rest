@@ -16,7 +16,6 @@
 package it.water.service.rest.spring;
 
 import it.water.core.api.registry.ComponentRegistry;
-import it.water.service.rest.WaterDefaultJacksonMapper;
 import it.water.service.rest.api.WaterJacksonMapper;
 import it.water.service.rest.spring.security.SpringJwtAuthenticationFilter;
 import lombok.Setter;
@@ -28,12 +27,10 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
 @EnableWebMvc
 @ComponentScan("it.water.service.rest.*")
-@EnableSwagger2
 public class WaterRestSpringConfiguration implements WebMvcConfigurer {
     @Autowired
     @Setter

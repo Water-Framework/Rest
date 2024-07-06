@@ -17,10 +17,11 @@ package it.water.service.rest.spring.api;
 
 import it.water.core.api.service.rest.FrameworkRestApi;
 import it.water.service.rest.api.StatusApi;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 /**
  * @Author Aristide Cittadino

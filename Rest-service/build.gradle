@@ -21,7 +21,7 @@ dependencies {
 	//JAXRS
 	implementation group: "jakarta.ws.rs", name: "jakarta.ws.rs-api", version: project.jakartaRsApiVersion
 	//Jackson Json Views
-	implementation group: 'com.fasterxml.jackson.jakarta.rs', name: 'jackson-jakarta-rs-json-provider', version: project.jacksonJsonProviderVersion
+	implementation group: 'com.fasterxml.jackson.jaxrs', name: 'jackson-jaxrs-json-provider', version: project.jacksonJsonProviderVersion
 	//Atteo
 	implementation 'org.atteo.classindex:classindex:'+project.atteoClassIndexVersion
 	annotationProcessor('org.atteo.classindex:classindex:' + project.atteoClassIndexVersion)

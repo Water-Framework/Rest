@@ -22,6 +22,6 @@ import it.water.core.api.permission.SecurityContext;
  * Class which maps the concept of REST security Context extending both Framework Security Context and javax.ws.rs.core.SecurityContext.
  * Ti class will be the abstract entity between all implementation (spring,osgi,quarkus....) which wraps the concept of the rest security context.
  */
-public interface RsSecurityContext extends SecurityContext, jakarta.ws.rs.core.SecurityContext {
+public interface RsSecurityContext extends SecurityContext, javax.ws.rs.core.SecurityContext {
 
 }

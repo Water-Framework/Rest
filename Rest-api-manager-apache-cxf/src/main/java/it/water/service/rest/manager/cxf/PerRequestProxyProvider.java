@@ -17,16 +17,15 @@ package it.water.service.rest.manager.cxf;
 
 import it.water.core.api.registry.ComponentRegistry;
 import it.water.service.rest.RestControllerProxy;
-import jakarta.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
-import org.apache.cxf.jaxrs.utils.ExceptionUtils;
 import org.apache.cxf.jaxrs.utils.InjectionUtils;
-import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.cxf.jaxrs.utils.ResourceUtils;
 import org.apache.cxf.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.core.Response;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -71,12 +70,12 @@ public class PerRequestProxyProvider implements ResourceProvider {
             return RestControllerProxy.createRestProxy(componentRegistry, concreteRestApiInterface, instance);
         } catch (Exception ex) {
             String msg = serviceClassDefaultConstructor.getDeclaringClass().getName() + " cannot be instantiated";
-            throw ExceptionUtils.toInternalServerErrorException(null, serverError(msg));
+            throw new InternalServerErrorException(serverError(msg));
         }
     }
 
     private Response serverError(String msg) {
-        return JAXRSUtils.toResponseBuilder(500).entity(msg).build();
+        return Response.serverError().entity(msg).build();
     }
 
     /**

@@ -11,15 +11,17 @@ dependencies {
     //lombok
     implementation group: 'org.projectlombok', name: 'lombok', version: project.lombokVersion
     annotationProcessor 'org.projectlombok:lombok:' + project.lombokVersion
-
     //REST
     implementation group: 'jakarta.ws.rs', name: 'jakarta.ws.rs-api', version: project.jakartaRsApiVersion
     implementation group: 'jakarta.xml.ws', name: 'jakarta.xml.ws-api', version: project.jakartaWsApiVersion
-    //needed for osgi runtime since cxf requires it but it is not an osgi bundle
-    implementation group: 'org.glassfish.jaxb', name:'txw2', version:'3.0.2'
-    implementation group: "org.apache.cxf", name: "cxf-rt-rs-service-description-openapi-v3", version: project.cxfServiceDescriptionOpenApiVersion
+    //implementation group: 'jakarta.xml.bind', name: 'jakarta.xml.bind-api', version: '2.3.2'
+    //to remove when cxf will support javaxml bind correctly
+    implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.0'
+    //CXF
+    implementation group: "org.apache.cxf", name: "cxf-rt-frontend-jaxrs", version: project.cxfVersion
+    implementation group: "org.apache.cxf", name: "cxf-rt-rs-service-description-swagger", version: project.cxfVersion
     //Jackson
-    implementation group: 'com.fasterxml.jackson.jakarta.rs', name: 'jackson-jakarta-rs-json-provider', version: project.jacksonJsonProviderVersion
+    implementation group: 'com.fasterxml.jackson.jaxrs', name: 'jackson-jaxrs-json-provider', version: project.jacksonJsonProviderVersion
     //Annotations
     implementation 'org.atteo.classindex:classindex:' + project.atteoClassIndexVersion
     annotationProcessor('org.atteo.classindex:classindex:' + project.atteoClassIndexVersion)
@@ -49,7 +51,7 @@ dependencies {
     testImplementation group: 'org.springframework', name: 'spring-web', version: project.springWebVersion
     testImplementation group: 'org.springframework', name: 'spring-context', version: project.springContextVersion
     //with 9.4.4 tests won't work because of the integration between cxf and jetty outside karaf context
-    testImplementation group: 'org.eclipse.jetty', name: 'jetty-servlet', version: project.jettyVersion
+    testImplementation group: 'org.eclipse.jetty', name: 'jetty-servlet', version: project.jettyServletVersion
 }
 
 test {

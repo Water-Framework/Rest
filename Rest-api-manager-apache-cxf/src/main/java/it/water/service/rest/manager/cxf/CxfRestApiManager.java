@@ -15,7 +15,7 @@
  */
 package it.water.service.rest.manager.cxf;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import it.water.core.api.interceptors.OnActivate;
 import it.water.core.api.interceptors.OnDeactivate;
 import it.water.core.api.registry.ComponentRegistry;
@@ -29,17 +29,16 @@ import it.water.service.rest.GenericExceptionMapperProvider;
 import it.water.service.rest.api.WaterJacksonMapper;
 import it.water.service.rest.api.options.RestOptions;
 import it.water.service.rest.manager.cxf.security.filters.jwt.CxfJwtAuthenticationFilter;
-import jakarta.ws.rs.container.ContainerRequestFilter;
 import lombok.Setter;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.Feature;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
-import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
-import org.apache.cxf.jaxrs.swagger.ui.SwaggerUiConfig;
+import org.apache.cxf.jaxrs.swagger.Swagger2Feature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.container.ContainerRequestFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -79,12 +78,11 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
             return;
         if (!stopped)
             this.stopRestApiServer();
-
         String restRootContext = (this.restOptions != null) ? this.restOptions.restRootContext() : "/water";
         log.info("Registering base REST resources under : {}", restRootContext);
         // configuring CXF Server with interceptors,features and providers
         List<Feature> features = new ArrayList<>();
-        features.add(addOpenApiFeature());
+        features.add(addSwaggerFeature());
         //configuring providers
         List<Object> providers = new ArrayList<>();
         JacksonJsonProvider jacksonJsonProvider = getJacksonJsonProvider();
@@ -94,7 +92,6 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
         //all filters registered as @FrameworkComponent will be added
         List<ContainerRequestFilter> filters = getContainerRequestFilters();
         providers.addAll(filters);
-
         JAXRSServerFactoryBean factory = new JAXRSServerFactoryBean();
         factory.setAddress("/");
         factory.setFeatures(features);
@@ -156,19 +153,17 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
         return server;
     }
 
-    private OpenApiFeature addOpenApiFeature() {
+    private Swagger2Feature addSwaggerFeature() {
         log.info("Registering Swagger Feature");
-        String contextRoot = (this.restOptions != null) ? this.restOptions.restRootContext() : "/water";
-        OpenApiFeature openApiFeature = new OpenApiFeature();
-        openApiFeature.setTitle(contextRoot + ": Application Rest Services ");
-        openApiFeature.setDescription("List of all " + contextRoot + " rest services");
-        openApiFeature.setLicenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html");
-        openApiFeature.setPrettyPrint(true);
-        openApiFeature.setSupportSwaggerUi(true);
-        SwaggerUiConfig swaggerUiConfig = new SwaggerUiConfig();
-        swaggerUiConfig.setUrl("/swagger.json");
-        openApiFeature.setSwaggerUiConfig(swaggerUiConfig);
-        return openApiFeature;
+        String contextRoot = this.restOptions.restRootContext();
+        Swagger2Feature swagger = new Swagger2Feature();
+        swagger.setTitle(contextRoot + ": Application Rest Services ");
+        swagger.setDescription("List of all " + contextRoot + " rest services");
+        swagger.setUsePathBasedConfig(true); // Necessary for OSGi
+        swagger.setPrettyPrint(true);
+        swagger.setBasePath(contextRoot);
+        swagger.setSupportSwaggerUi(true);
+        return swagger;
     }
 
     private GenericExceptionMapperProvider getGenericExceptionMapper() {

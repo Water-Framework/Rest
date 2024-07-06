@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+
 @RequestMapping("/test")
 public interface TestApi extends RestApi {
     @LoggedIn(issuers = "it.water.service.rest.sprint.api.FakeUser")

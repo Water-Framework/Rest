@@ -82,7 +82,7 @@ class RestSpringApiTest {
 
     @Test
     void getSwagger() {
-        ResponseEntity<String> response = template.getForEntity("/v2/api-docs", String.class);
+        ResponseEntity<String> response = template.getForEntity("/v3/api-docs", String.class);
         Assertions.assertEquals(200, response.getStatusCodeValue());
         String responseBody = response.getBody();
         Assertions.assertTrue(!responseBody.isEmpty());

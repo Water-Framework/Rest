@@ -16,9 +16,7 @@
 
 package it.water.service.rest.api.security;
 
-
-import jakarta.ws.rs.NameBinding;
-
+import javax.ws.rs.NameBinding;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
