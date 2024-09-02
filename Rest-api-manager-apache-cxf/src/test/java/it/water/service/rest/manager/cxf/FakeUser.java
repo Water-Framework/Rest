@@ -102,9 +102,4 @@ public class FakeUser implements User, Authenticable {
     public void setEntityVersion(Integer integer) {
 
     }
-
-    @Override
-    public String getSystemApiClassName() {
-        return null;
-    }
 }
