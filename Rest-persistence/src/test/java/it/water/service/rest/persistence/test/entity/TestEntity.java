@@ -69,11 +69,6 @@ public class TestEntity implements ProtectedEntity {
         return entityVersion;
     }
 
-    @Override
-    public String getSystemApiClassName() {
-        return null;
-    }
-
     public void setEntityVersion(Integer entityVersion) {
         this.entityVersion = entityVersion;
     }
