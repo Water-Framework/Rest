@@ -21,12 +21,13 @@ import it.water.service.rest.api.security.jwt.JwtTokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.List;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.*;
 
 public class GenericJWTAuthFilter {
     private static Logger log = LoggerFactory.getLogger(GenericJWTAuthFilter.class);
-    private static final String EXPECTED_AUTH_SCHEME = "JWT";
+    private static final String EXPECTED_AUTH_SCHEME = "Bearer";
 
     /**
      * Filter request and inject security context only if Logged in annotation is found on the service
@@ -54,5 +55,70 @@ public class GenericJWTAuthFilter {
             throw new UnauthorizedException(EXPECTED_AUTH_SCHEME + " is required");
         }
         return parts[1];
+    }
+
+    //todo probably this utitly methods should be moved
+    protected Annotation getAnnotationFromHierarchy(Class<? extends Annotation> annotationClass, Method method) {
+        List<Annotation> annotations = getAllAnnotationsFromHierarchy(method);
+        Optional<Annotation> optionalAnnotation = annotations.stream().filter(curAnnotation -> curAnnotation.annotationType().equals(annotationClass)).findFirst();
+        if (optionalAnnotation.isPresent())
+            return optionalAnnotation.get();
+        return null;
+    }
+
+    /**
+     * Utility function for retrieving all annotations within a specific method in the whole class hierarchy
+     *
+     * @param method
+     * @return
+     */
+    protected List<Annotation> getAllAnnotationsFromHierarchy(Method method) {
+        Set<Annotation> allAnnotations = new HashSet<>();
+
+        addAnnotationsFromMethod(method, allAnnotations);
+
+        Class<?> currentClass = method.getDeclaringClass().getSuperclass();
+        while (currentClass != null) {
+            try {
+                Method parentMethod = currentClass.getDeclaredMethod(method.getName(), method.getParameterTypes());
+                addAnnotationsFromMethod(parentMethod, allAnnotations);
+            } catch (NoSuchMethodException e) {
+                log.debug("No method found in super class for method {}", method.getName());
+            }
+            currentClass = currentClass.getSuperclass();
+        }
+
+        Set<Class<?>> interfaces = getAllInterfaces(method.getDeclaringClass());
+        for (Class<?> interfaceClass : interfaces) {
+            try {
+                Method interfaceMethod = interfaceClass.getMethod(method.getName(), method.getParameterTypes());
+                addAnnotationsFromMethod(interfaceMethod, allAnnotations);
+            } catch (NoSuchMethodException e) {
+                log.debug("No method found in super class for method {}", method.getName());
+            }
+        }
+
+        return new ArrayList<>(allAnnotations);
+    }
+
+    private void addAnnotationsFromMethod(Method method, Set<Annotation> annotations) {
+        annotations.addAll(Arrays.asList(method.getAnnotations()));
+    }
+
+    private Set<Class<?>> getAllInterfaces(Class<?> clazz) {
+        Set<Class<?>> interfaces = new HashSet<>();
+        while (clazz != null) {
+            getAllInterfacesRecursively(clazz, interfaces);
+            clazz = clazz.getSuperclass();
+        }
+        return interfaces;
+    }
+
+    private void getAllInterfacesRecursively(Class<?> clazz, Set<Class<?>> interfaces) {
+        for (Class<?> interfaceClass : clazz.getInterfaces()) {
+            if (interfaces.add(interfaceClass)) {
+                getAllInterfacesRecursively(interfaceClass, interfaces);
+            }
+        }
     }
 }

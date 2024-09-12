@@ -103,8 +103,4 @@ public class FakeUser implements User, Authenticable {
         //do nothing
     }
 
-    @Override
-    public String getSystemApiClassName() {
-        return null;
-    }
 }

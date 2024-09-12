@@ -93,11 +93,6 @@ public class TestUser implements Authenticable, User {
     }
 
     @Override
-    public String getSystemApiClassName() {
-        return null;
-    }
-
-    @Override
     public String getName() {
         return null;
     }

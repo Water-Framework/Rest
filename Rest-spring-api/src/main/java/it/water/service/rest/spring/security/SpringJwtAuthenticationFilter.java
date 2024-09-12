@@ -18,6 +18,7 @@ package it.water.service.rest.spring.security;
 import it.water.core.api.bundle.Runtime;
 import it.water.core.api.registry.ComponentRegistry;
 import it.water.implementation.spring.security.SpringSecurityContext;
+import it.water.service.rest.api.options.RestOptions;
 import it.water.service.rest.api.security.LoggedIn;
 import it.water.service.rest.api.security.jwt.JwtTokenService;
 import it.water.service.rest.security.jwt.GenericJWTAuthFilter;
@@ -47,6 +48,7 @@ public class SpringJwtAuthenticationFilter extends GenericJWTAuthFilter implemen
 
     private static Logger log = LoggerFactory.getLogger(SpringJwtAuthenticationFilter.class);
     private ComponentRegistry componentRegistry;
+    private RestOptions cachedRestOptions;
 
     public SpringJwtAuthenticationFilter(ComponentRegistry componentRegistry) {
         this.componentRegistry = componentRegistry;
@@ -55,23 +57,26 @@ public class SpringJwtAuthenticationFilter extends GenericJWTAuthFilter implemen
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         log.debug("Pre handle: {}", SpringJwtAuthenticationFilter.class.getName());
-        HandlerMethod handlerMethod = (HandlerMethod) handler;
-        Method method = handlerMethod.getMethod();
-        LoggedIn annotation = method.getAnnotation(LoggedIn.class);
-        if (annotation != null) {
-            String authorization = request.getHeader("Authorization");
-            String cookie = null;
-            if (request.getCookies() != null) {
-                Optional<Cookie> cookies = Arrays.stream(request.getCookies()).filter(currCookie -> currCookie.getName().equalsIgnoreCase(JWTConstants.JWT_COOKIE_NAME)).findAny();
-                if (cookies.isPresent())
-                    cookie = cookies.get().getName();
+        RestOptions restOptions = this.retrieveRestOptions();
+        if (restOptions.securityOptions().validateJwt()) {
+            HandlerMethod handlerMethod = (HandlerMethod) handler;
+            Method method = handlerMethod.getMethod();
+            LoggedIn annotation = (LoggedIn) this.getAnnotationFromHierarchy(LoggedIn.class, method);
+            if (annotation != null) {
+                String authorization = request.getHeader("Authorization");
+                String cookie = null;
+                if (request.getCookies() != null) {
+                    Optional<Cookie> cookies = Arrays.stream(request.getCookies()).filter(currCookie -> currCookie.getName().equalsIgnoreCase(JWTConstants.JWT_COOKIE_NAME)).findAny();
+                    if (cookies.isPresent())
+                        cookie = cookies.get().getName();
+                }
+                JwtTokenService jwtTokenService = this.componentRegistry.findComponent(JwtTokenService.class, null);
+                //raise exception if not valid token
+                this.validateToken(jwtTokenService, annotation, authorization, cookie);
+                //Fill current thread with security context
+                Runtime runtime = this.componentRegistry.findComponent(Runtime.class, null);
+                runtime.fillSecurityContext(new SpringSecurityContext(jwtTokenService.getPrincipals(getTokenFromRequest(authorization, cookie))));
             }
-            JwtTokenService jwtTokenService = this.componentRegistry.findComponent(JwtTokenService.class, null);
-            //raise exception if not valid token
-            this.validateToken(jwtTokenService, annotation, authorization, cookie);
-            //Fill current thread with security context
-            Runtime runtime = this.componentRegistry.findComponent(Runtime.class, null);
-            runtime.fillSecurityContext(new SpringSecurityContext(jwtTokenService.getPrincipals(getTokenFromRequest(authorization, cookie))));
         }
         return true;
     }
@@ -84,5 +89,11 @@ public class SpringJwtAuthenticationFilter extends GenericJWTAuthFilter implemen
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         //do nothing
+    }
+
+    private RestOptions retrieveRestOptions() {
+        if (this.cachedRestOptions == null)
+            this.cachedRestOptions = this.componentRegistry.findComponent(RestOptions.class, null);
+        return this.cachedRestOptions;
     }
 }

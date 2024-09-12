@@ -22,6 +22,7 @@ import it.water.core.api.registry.ComponentRegistry;
 import it.water.core.model.BaseError;
 import it.water.core.model.BasicErrorMessage;
 import it.water.core.model.exceptions.WaterRuntimeException;
+import it.water.service.rest.api.options.RestOptions;
 import it.water.service.rest.api.security.LoggedIn;
 import it.water.service.rest.api.security.jwt.JwtTokenService;
 import it.water.service.rest.security.jwt.GenericJWTAuthFilter;
@@ -59,16 +60,20 @@ public class CxfJwtAuthenticationFilter extends GenericJWTAuthFilter implements 
     protected ResourceInfo info;
     private ComponentRegistry componentRegistry;
     private JwtTokenService jwtTokenService;
+    private RestOptions restOptions;
 
     public CxfJwtAuthenticationFilter(ComponentRegistry componentRegistry) {
         this.componentRegistry = componentRegistry;
         this.jwtTokenService = this.componentRegistry.findComponent(JwtTokenService.class, null);
+        this.restOptions = this.componentRegistry.findComponent(RestOptions.class, null);
         if (this.jwtTokenService == null)
             throw new WaterRuntimeException("No JWT Token Service found, please install one!");
     }
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
+        if(!restOptions.securityOptions().validateJwt())
+            return;
         try {
             //if token is not valid it will raise exception
             log.debug("In JwtAuthenticationFilter on class: {}.{}", info.getResourceClass(), info.getResourceMethod());
