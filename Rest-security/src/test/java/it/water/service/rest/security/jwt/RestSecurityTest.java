@@ -114,8 +114,8 @@ class RestSecurityTest implements Service {
     @Test
     void testGenericJWTAuthFilter() {
         GenericJWTAuthFilter genericJWTAuthFilter = new GenericJWTAuthFilter();
-        String authorization = "JWT 123";
-        String cookieValue = "JWT 456";
+        String authorization = "Bearer 123";
+        String cookieValue = "Bearer 456";
         String token = genericJWTAuthFilter.getTokenFromRequest(authorization, null);
         Assertions.assertEquals("123", token);
         token = genericJWTAuthFilter.getTokenFromRequest(null, cookieValue);
@@ -125,7 +125,7 @@ class RestSecurityTest implements Service {
         roles.add(new TestRole("Role1"));
         TestUser u = new TestUser("fakeUser", roles);
         token = getJwtTokenService().generateJwtToken(u);
-        authorization = "JWT " + token;
+        authorization = "Bearer " + token;
         LoggedIn loggedIn = new LoggedIn() {
             @Override
             public String[] issuers() {

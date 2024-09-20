@@ -93,7 +93,7 @@ class CxfRestApiManagerTest implements Service {
         String apiUrl = "http://localhost:8080/water/test/authenticatedOperation";
         JwtTokenService jwtTokenService = TestRuntimeInitializer.getInstance().getComponentRegistry().findComponent(JwtTokenService.class, null);
         User fakeUser = new FakeUser();
-        String token = "JWT " + jwtTokenService.generateJwtToken((Authenticable) fakeUser);
+        String token = "Bearer " + jwtTokenService.generateJwtToken((Authenticable) fakeUser);
         HttpGet httpGet = new HttpGet(apiUrl);
         httpGet.setHeader("Authorization", token);
         ClassicHttpResponse response = httpClient.execute(httpGet);

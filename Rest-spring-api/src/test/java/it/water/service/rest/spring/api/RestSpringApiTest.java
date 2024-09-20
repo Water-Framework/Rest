@@ -74,7 +74,7 @@ class RestSpringApiTest {
         FakeUser fk = new FakeUser();
         String jwt = this.jwtTokenService.generateJwtToken(fk);
         HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.AUTHORIZATION, "JWT " + jwt);
+        headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + jwt);
         HttpEntity httpEntity = new HttpEntity(headers);
         response = template.exchange("/test/authenticatedOperation", HttpMethod.GET, httpEntity, String.class);
         Assertions.assertEquals(200, response.getStatusCodeValue());
