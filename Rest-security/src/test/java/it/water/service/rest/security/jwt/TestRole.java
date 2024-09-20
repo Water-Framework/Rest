@@ -15,7 +15,7 @@
  */
 package it.water.service.rest.security.jwt;
 
-import it.water.core.api.permission.Role;
+import it.water.core.api.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

@@ -17,7 +17,6 @@ package it.water.service.rest.security.jwt;
 
 import it.water.core.api.entity.Authenticable;
 import it.water.core.api.model.User;
-import it.water.core.api.permission.Role;
 import lombok.AllArgsConstructor;
 
 import java.util.ArrayList;
