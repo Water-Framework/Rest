@@ -16,6 +16,7 @@
 
 package it.water.service.rest;
 
+import it.water.core.api.bundle.ApplicationProperties;
 import it.water.core.api.service.Service;
 import it.water.core.interceptors.annotations.Inject;
 import it.water.core.model.BaseError;
@@ -36,6 +37,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.ws.rs.core.Response;
 import java.util.Collections;
+import java.util.Properties;
 
 @ExtendWith({MockitoExtension.class, WaterTestExtension.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -44,6 +46,10 @@ class RestServiceTest implements Service {
     @Inject
     @Setter
     private RestOptions restOptions;
+
+    @Inject
+    @Setter
+    private ApplicationProperties applicationProperties;
 
     @Test
     void testGenericExceptionMapper() {
@@ -73,10 +79,20 @@ class RestServiceTest implements Service {
     void testRestOptions(){
         Assertions.assertNotNull(restOptions.securityOptions());
         Assertions.assertNotNull(restOptions.restRootContext());
-        Assertions.assertNotNull(restOptions.servicesUrl());
-        Assertions.assertNotNull(restOptions.frontendUrl());
-        Assertions.assertNotNull(restOptions.uploadFolderPath());
-        Assertions.assertTrue(restOptions.uploadMaxFileSize() > 0);
+        Assertions.assertEquals("",restOptions.servicesUrl());
+        Assertions.assertEquals("",restOptions.frontendUrl());
+        Assertions.assertEquals("",restOptions.uploadFolderPath());
+        Assertions.assertEquals(1024,restOptions.uploadMaxFileSize());
+        Properties props = new Properties();
+        props.put(RestConstants.REST_PROP_FRONTEND_URL,"www.frontend.com");
+        props.put(RestConstants.REST_PROP_SERVICES_URL,"www.be.com/api");
+        props.put(RestConstants.REST_PROP_UPLOAD_PATH,"/server/uploads");
+        props.put(RestConstants.REST_PROP_UPLOAD_MAX_FILE_SIZE,500);
+        applicationProperties.loadProperties(props);
+        Assertions.assertEquals("www.be.com/api",restOptions.servicesUrl());
+        Assertions.assertEquals("www.frontend.com",restOptions.frontendUrl());
+        Assertions.assertEquals("/server/uploads",restOptions.uploadFolderPath());
+        Assertions.assertEquals(500,restOptions.uploadMaxFileSize());
     }
 
 }
