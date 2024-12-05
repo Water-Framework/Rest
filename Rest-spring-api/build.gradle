@@ -50,6 +50,9 @@ dependencies {
     testImplementation group: 'it.water.core', name: 'Core-model', version: project.waterVersion
     testImplementation group: 'it.water.core', name: 'Core-security', version: project.waterVersion
     testImplementation group: 'it.water.core', name: 'Core-validation', version: project.waterVersion
+    //Persistence
+    testImplementation group: 'jakarta.persistence', name: 'jakarta.persistence-api', version: project.jakartaPersistenceVersion
+    testImplementation group: 'jakarta.transaction', name: 'jakarta.transaction-api', version: project.jakartaTransactionApiVersion
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test:' + project.springBootVersion
     testImplementation 'org.junit.jupiter:junit-jupiter-api:' + project.junitJupiterVersion

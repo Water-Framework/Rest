@@ -239,8 +239,8 @@ public class NimbusJwtTokenService implements JwtTokenService {
     private SignedJWT getSignedJWTToken(String jwtStr) {
         try {
             JWT jwt = JWTParser.parse(jwtStr);
-            if (jwt instanceof SignedJWT) {
-                return (SignedJWT) jwt;
+            if (jwt instanceof SignedJWT signedJWT) {
+                return signedJWT;
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);

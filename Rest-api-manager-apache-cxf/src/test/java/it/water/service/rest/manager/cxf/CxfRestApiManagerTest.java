@@ -28,6 +28,7 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,11 +43,17 @@ import java.io.IOException;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CxfRestApiManagerTest implements Service {
 
+    private static String baseApiUrl;
+
+    @BeforeAll
+    public static void beforeAll(){
+        baseApiUrl = "http://localhost:"+TestRuntimeInitializer.getInstance().getRestServerPort()+"/water";
+    }
+
     @Test
     void testRootRestService() throws IOException, ParseException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        String apiUrl = "http://localhost:8080/water";
-        HttpGet httpGet = new HttpGet(apiUrl);
+        HttpGet httpGet = new HttpGet(baseApiUrl);
         ClassicHttpResponse response = httpClient.execute(httpGet);
         String responseBody = EntityUtils.toString(response.getEntity());
         Assertions.assertEquals(200, response.getCode());
@@ -56,7 +63,7 @@ class CxfRestApiManagerTest implements Service {
     @Test
     void testStatusService() throws IOException, ParseException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        String apiUrl = "http://localhost:8080/water/status";
+        String apiUrl = baseApiUrl+"/status";
         HttpGet httpGet = new HttpGet(apiUrl);
         ClassicHttpResponse response = httpClient.execute(httpGet);
         String responseBody = EntityUtils.toString(response.getEntity());
@@ -67,7 +74,7 @@ class CxfRestApiManagerTest implements Service {
     @Test
     void getSwagger() throws IOException, ParseException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        String apiUrl = "http://localhost:8080/water/swagger.json";
+        String apiUrl = baseApiUrl+"/swagger.json";
         HttpGet httpGet = new HttpGet(apiUrl);
         ClassicHttpResponse response = httpClient.execute(httpGet);
         String responseBody = EntityUtils.toString(response.getEntity());
@@ -79,7 +86,7 @@ class CxfRestApiManagerTest implements Service {
     @Test
     void testFailAuthenticatedOperation() throws IOException, ParseException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        String apiUrl = "http://localhost:8080/water/test/authenticatedOperation";
+        String apiUrl = baseApiUrl+"/test/authenticatedOperation";
         HttpGet httpGet = new HttpGet(apiUrl);
         ClassicHttpResponse response = httpClient.execute(httpGet);
         String responseBody = EntityUtils.toString(response.getEntity());
@@ -90,7 +97,7 @@ class CxfRestApiManagerTest implements Service {
     @Test
     void testSuccessAuthenticatedOperation() throws IOException, ParseException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        String apiUrl = "http://localhost:8080/water/test/authenticatedOperation";
+        String apiUrl = baseApiUrl+"/test/authenticatedOperation";
         JwtTokenService jwtTokenService = TestRuntimeInitializer.getInstance().getComponentRegistry().findComponent(JwtTokenService.class, null);
         User fakeUser = new FakeUser();
         String token = "Bearer " + jwtTokenService.generateJwtToken((Authenticable) fakeUser);
@@ -105,7 +112,7 @@ class CxfRestApiManagerTest implements Service {
     @Test
     void testAnonympusOperation() throws IOException, ParseException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        String apiUrl = "http://localhost:8080/water/test/anonymousOperation";
+        String apiUrl = baseApiUrl+"/test/anonymousOperation";
         HttpGet httpGet = new HttpGet(apiUrl);
         ClassicHttpResponse response = httpClient.execute(httpGet);
         String responseBody = EntityUtils.toString(response.getEntity());
