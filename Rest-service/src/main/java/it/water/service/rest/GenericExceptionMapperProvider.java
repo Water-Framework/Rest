@@ -71,10 +71,10 @@ public class GenericExceptionMapperProvider implements ExceptionMapper<Throwable
     public Response toResponse(Throwable ex) {
         log.error(ex.getMessage(), ex);
 
-        if (ex instanceof Error)
-            return handleError((Error) ex);
-        else if (ex instanceof UndeclaredThrowableException) {
-            ex = ((UndeclaredThrowableException) ex).getUndeclaredThrowable();
+        if (ex instanceof Error error)
+            return handleError(error);
+        else if (ex instanceof UndeclaredThrowableException undeclaredThrowableException) {
+            ex = undeclaredThrowableException.getUndeclaredThrowable();
         }
 
         BaseError error = handleException((Exception) ex);
@@ -84,8 +84,8 @@ public class GenericExceptionMapperProvider implements ExceptionMapper<Throwable
     protected BaseError handleException(Exception t) {
         BaseError response = null;
         try {
-            if (t instanceof InvocationTargetException) {
-                throw (Exception) ((InvocationTargetException) t).getTargetException();
+            if (t instanceof InvocationTargetException invocationTargetException) {
+                throw (Exception) (invocationTargetException).getTargetException();
             }
             throw t;
         } catch (DuplicateEntityException e) {

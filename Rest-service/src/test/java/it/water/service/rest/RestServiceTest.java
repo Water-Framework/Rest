@@ -16,11 +16,18 @@
 
 package it.water.service.rest;
 
+import it.water.core.model.BaseError;
+import it.water.core.model.exceptions.ValidationException;
+import it.water.core.model.validation.ValidationError;
 import it.water.core.permission.exceptions.UnauthorizedException;
+import it.water.repository.entity.model.exceptions.DuplicateEntityException;
+import it.water.repository.entity.model.exceptions.EntityNotFound;
+import it.water.repository.entity.model.exceptions.NoResultException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 
 class RestServiceTest {
     @Test
@@ -31,5 +38,20 @@ class RestServiceTest {
         GenericExceptionMapperProvider.ErrorMessage errorMessage = new GenericExceptionMapperProvider.ErrorMessage(403, "message");
         Assertions.assertEquals(403, errorMessage.getStatus());
         Assertions.assertEquals("message", errorMessage.getMessage());
+        BaseError error = exceptionMapperProvider.handleException(new DuplicateEntityException(new String[]{"a","b"}));
+        Assertions.assertEquals(409,error.getStatusCode());
+        error = exceptionMapperProvider.handleException(new ValidationException(Collections.emptyList()));
+        Assertions.assertEquals(422,error.getStatusCode());
+        error = exceptionMapperProvider.handleException(new EntityNotFound());
+        Assertions.assertEquals(404,error.getStatusCode());
+        error = exceptionMapperProvider.handleException(new NoResultException());
+        Assertions.assertEquals(404,error.getStatusCode());
+        error = exceptionMapperProvider.handleException(new UnauthorizedException());
+        Assertions.assertEquals(401,error.getStatusCode());
+        error = exceptionMapperProvider.handleException(new RuntimeException());
+        Assertions.assertEquals(500,error.getStatusCode());
+        error = exceptionMapperProvider.handleException(new IllegalArgumentException());
+        Assertions.assertEquals(500,error.getStatusCode());
     }
+
 }
