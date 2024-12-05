@@ -46,6 +46,8 @@ dependencies {
 
 	implementation(group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: project.nimbusJoseJwtVersion)
 
+	testImplementation group:'it.water.core',name:'Core-bundle',version:project.waterVersion
+	testImplementation group:'it.water.core',name:'Core-testing-utils',version:project.waterVersion
 	testAnnotationProcessor 'org.projectlombok:lombok:'+project.lombokVersion
 	testImplementation 'org.mockito:mockito-core:4.6.1'
 	testImplementation 'org.mockito:mockito-junit-jupiter:4.6.1'
