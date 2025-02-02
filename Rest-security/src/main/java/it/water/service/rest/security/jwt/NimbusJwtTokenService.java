@@ -25,7 +25,7 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
-import it.water.core.api.entity.Authenticable;
+import it.water.core.api.security.Authenticable;
 import it.water.core.api.security.EncryptionUtil;
 import it.water.core.interceptors.annotations.FrameworkComponent;
 import it.water.core.interceptors.annotations.Inject;
@@ -106,7 +106,7 @@ public class NimbusJwtTokenService implements JwtTokenService {
                 publicKey = (RSAPublicKey) encryptionUtil.getServerKeyPair().getPublic();
             }
             SignedJWT signedJWT = getSignedJWTToken(jwtStr);
-            if(signedJWT != null) {
+            if (signedJWT != null) {
                 JWSVerifier verifier = new RSASSAVerifier(publicKey);
                 verified = signedJWT.verify(verifier) && validateExpiration(signedJWT);
                 return verified;
@@ -224,7 +224,7 @@ public class NimbusJwtTokenService implements JwtTokenService {
         //if you want to remove jwt token encryption please consider this aspect
         builder.claim(JWTConstants.JWT_CLAIM_ROLES, authenticable.getRoles())
                 .claim(JWTConstants.JWT_CLAIM_IS_ADMIN, authenticable.isAdmin())
-                .claim(JWTConstants.JWT_CLAIM_LOGGED_ENTITY_ID, authenticable.getId());
+                .claim(JWTConstants.JWT_CLAIM_LOGGED_ENTITY_ID, authenticable.getLoggedEntityId());
         builder.issuer(authenticable.getClass().getName());
         return builder.build();
     }

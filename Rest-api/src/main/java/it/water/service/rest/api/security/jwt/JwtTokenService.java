@@ -15,7 +15,7 @@
  */
 package it.water.service.rest.api.security.jwt;
 
-import it.water.core.api.entity.Authenticable;
+import it.water.core.api.security.Authenticable;
 import it.water.core.api.service.Service;
 
 import java.security.Principal;
@@ -54,7 +54,6 @@ public interface JwtTokenService extends Service {
     Set<Principal> getPrincipals(String jwtToken);
 
     /**
-     *
      * @return JWK For remote token validation
      */
     String getJWK();
