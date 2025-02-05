@@ -225,7 +225,7 @@ public class NimbusJwtTokenService implements JwtTokenService {
         builder.claim(JWTConstants.JWT_CLAIM_ROLES, authenticable.getRoles())
                 .claim(JWTConstants.JWT_CLAIM_IS_ADMIN, authenticable.isAdmin())
                 .claim(JWTConstants.JWT_CLAIM_LOGGED_ENTITY_ID, authenticable.getLoggedEntityId());
-        builder.issuer(authenticable.getClass().getName());
+        builder.issuer(authenticable.getIssuer());
         return builder.build();
     }
 
