@@ -15,13 +15,13 @@
  */
 package it.water.service.rest.security.jwt;
 
-import it.water.core.api.entity.Authenticable;
+import it.water.core.api.model.Role;
 import it.water.core.api.model.User;
+import it.water.core.api.security.Authenticable;
 import lombok.AllArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -45,19 +45,14 @@ public class TestUser implements Authenticable, User {
     }
 
     @Override
-    public Collection<String> getRoles() {
-        Collection<String> roleNames = new ArrayList<>();
-        roles.stream().forEach(role -> roleNames.add(role.getName()));
-        return roleNames;
+    public Collection<Role> getRoles() {
+        Collection<Role> rolesCollection = new ArrayList<>();
+        roles.stream().forEach(role -> rolesCollection.add(role));
+        return rolesCollection;
     }
 
     @Override
     public String getPassword() {
-        return "....";
-    }
-
-    @Override
-    public String getPasswordConfirm() {
         return "....";
     }
 
@@ -69,26 +64,6 @@ public class TestUser implements Authenticable, User {
     @Override
     public long getId() {
         return 0;
-    }
-
-    @Override
-    public Date getEntityCreateDate() {
-        return null;
-    }
-
-    @Override
-    public Date getEntityModifyDate() {
-        return null;
-    }
-
-    @Override
-    public Integer getEntityVersion() {
-        return 0;
-    }
-
-    @Override
-    public void setEntityVersion(Integer integer) {
-        //do nothing
     }
 
     @Override
@@ -109,5 +84,20 @@ public class TestUser implements Authenticable, User {
     @Override
     public String getUsername() {
         return screenName;
+    }
+
+    @Override
+    public Long getLoggedEntityId() {
+        return getId();
+    }
+
+    @Override
+    public String getIssuer() {
+        return TestUser.class.getName();
+    }
+
+    @Override
+    public String getSalt() {
+        return "salt";
     }
 }

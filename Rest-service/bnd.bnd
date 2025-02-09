@@ -25,4 +25,3 @@ Export-Package: \
     it.water.service.rest.persistence.*,\
     com.nimbusds.*
 DynamicImport-Package: *
--fixupmessages "Classes found in the wrong directory"; restrict:=error; is:=warning

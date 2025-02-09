@@ -62,7 +62,6 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
     @Inject
     @Setter
     private RestApiRegistry restApiRegistry;
-
     @Inject
     @Setter
     private WaterJacksonMapper waterJacksonMapper;
@@ -72,6 +71,15 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
     private CxfJwtAuthenticationFilter jwtAuthenticationFilter;
 
     @OnActivate
+    public synchronized void onActivate(RestApiRegistry restApiRegistry, RestOptions restOptions, WaterJacksonMapper waterJacksonMapper, ComponentRegistry componentRegistry) {
+        //on activation injection is supported by onActivate parameters
+        this.restApiRegistry = restApiRegistry;
+        this.restOptions = restOptions;
+        this.waterJacksonMapper = waterJacksonMapper;
+        this.componentRegistry = componentRegistry;
+        this.startRestApiServer();
+    }
+
     @Override
     public synchronized void startRestApiServer() {
         if (this.restApiRegistry == null)

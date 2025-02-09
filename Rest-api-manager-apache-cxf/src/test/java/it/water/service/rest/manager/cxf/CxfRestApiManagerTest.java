@@ -15,8 +15,8 @@
  */
 package it.water.service.rest.manager.cxf;
 
-import it.water.core.api.entity.Authenticable;
 import it.water.core.api.model.User;
+import it.water.core.api.security.Authenticable;
 import it.water.core.api.service.Service;
 import it.water.core.testing.utils.bundle.TestRuntimeInitializer;
 import it.water.core.testing.utils.junit.WaterTestExtension;
@@ -46,8 +46,8 @@ class CxfRestApiManagerTest implements Service {
     private static String baseApiUrl;
 
     @BeforeAll
-    public static void beforeAll(){
-        baseApiUrl = "http://localhost:"+TestRuntimeInitializer.getInstance().getRestServerPort()+"/water";
+    public static void beforeAll() {
+        baseApiUrl = "http://localhost:" + TestRuntimeInitializer.getInstance().getRestServerPort() + "/water";
     }
 
     @Test
@@ -63,7 +63,7 @@ class CxfRestApiManagerTest implements Service {
     @Test
     void testStatusService() throws IOException, ParseException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        String apiUrl = baseApiUrl+"/status";
+        String apiUrl = baseApiUrl + "/status";
         HttpGet httpGet = new HttpGet(apiUrl);
         ClassicHttpResponse response = httpClient.execute(httpGet);
         String responseBody = EntityUtils.toString(response.getEntity());
@@ -74,7 +74,7 @@ class CxfRestApiManagerTest implements Service {
     @Test
     void getSwagger() throws IOException, ParseException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        String apiUrl = baseApiUrl+"/swagger.json";
+        String apiUrl = baseApiUrl + "/swagger.json";
         HttpGet httpGet = new HttpGet(apiUrl);
         ClassicHttpResponse response = httpClient.execute(httpGet);
         String responseBody = EntityUtils.toString(response.getEntity());
@@ -86,7 +86,7 @@ class CxfRestApiManagerTest implements Service {
     @Test
     void testFailAuthenticatedOperation() throws IOException, ParseException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        String apiUrl = baseApiUrl+"/test/authenticatedOperation";
+        String apiUrl = baseApiUrl + "/test/authenticatedOperation";
         HttpGet httpGet = new HttpGet(apiUrl);
         ClassicHttpResponse response = httpClient.execute(httpGet);
         String responseBody = EntityUtils.toString(response.getEntity());
@@ -97,7 +97,7 @@ class CxfRestApiManagerTest implements Service {
     @Test
     void testSuccessAuthenticatedOperation() throws IOException, ParseException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        String apiUrl = baseApiUrl+"/test/authenticatedOperation";
+        String apiUrl = baseApiUrl + "/test/authenticatedOperation";
         JwtTokenService jwtTokenService = TestRuntimeInitializer.getInstance().getComponentRegistry().findComponent(JwtTokenService.class, null);
         User fakeUser = new FakeUser();
         String token = "Bearer " + jwtTokenService.generateJwtToken((Authenticable) fakeUser);
@@ -112,7 +112,7 @@ class CxfRestApiManagerTest implements Service {
     @Test
     void testAnonympusOperation() throws IOException, ParseException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        String apiUrl = baseApiUrl+"/test/anonymousOperation";
+        String apiUrl = baseApiUrl + "/test/anonymousOperation";
         HttpGet httpGet = new HttpGet(apiUrl);
         ClassicHttpResponse response = httpClient.execute(httpGet);
         String responseBody = EntityUtils.toString(response.getEntity());

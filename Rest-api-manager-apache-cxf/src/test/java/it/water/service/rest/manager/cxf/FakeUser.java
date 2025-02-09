@@ -15,12 +15,12 @@
  */
 package it.water.service.rest.manager.cxf;
 
-import it.water.core.api.entity.Authenticable;
+import it.water.core.api.model.Role;
 import it.water.core.api.model.User;
+import it.water.core.api.security.Authenticable;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
+import java.util.List;
 
 public class FakeUser implements User, Authenticable {
     @Override
@@ -59,17 +59,7 @@ public class FakeUser implements User, Authenticable {
     }
 
     @Override
-    public Collection<String> getRoles() {
-        return Collections.emptySet();
-    }
-
-    @Override
     public String getPassword() {
-        return null;
-    }
-
-    @Override
-    public String getPasswordConfirm() {
         return null;
     }
 
@@ -84,22 +74,22 @@ public class FakeUser implements User, Authenticable {
     }
 
     @Override
-    public Date getEntityCreateDate() {
-        return new Date();
+    public Long getLoggedEntityId() {
+        return 0L;
     }
 
     @Override
-    public Date getEntityModifyDate() {
-        return new Date();
+    public String getIssuer() {
+        return "it.water.service.rest.manager.cxf.FakeUser";
     }
 
     @Override
-    public Integer getEntityVersion() {
-        return 0;
+    public String getSalt() {
+        return "salt";
     }
 
     @Override
-    public void setEntityVersion(Integer integer) {
-
+    public Collection<Role> getRoles() {
+        return List.of();
     }
 }

@@ -222,7 +222,9 @@ public class NimbusJwtTokenService implements JwtTokenService {
         builder.expirationTime(Date.from(Instant.ofEpochMilli(expirationTime)));
         //default token encryption is enabled, so this information is not visibile to the end user
         //if you want to remove jwt token encryption please consider this aspect
-        builder.claim(JWTConstants.JWT_CLAIM_ROLES, authenticable.getRoles())
+        Set<String> roleNames = new HashSet<>();
+        authenticable.getRoles().forEach(role -> roleNames.add(role.getName()));
+        builder.claim(JWTConstants.JWT_CLAIM_ROLES, roleNames)
                 .claim(JWTConstants.JWT_CLAIM_IS_ADMIN, authenticable.isAdmin())
                 .claim(JWTConstants.JWT_CLAIM_LOGGED_ENTITY_ID, authenticable.getLoggedEntityId());
         builder.issuer(authenticable.getIssuer());
