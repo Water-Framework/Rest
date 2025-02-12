@@ -17,7 +17,8 @@ Import-Package: \
     it.water.service.rest.api.*,\
     it.water.service.rest.api.options.*,\
     it.water.service.rest.jaxrs.*,\
-    it.water.service.rest.security.*
+    it.water.service.rest.security.*,\
+    it.water.repository.*;resolution:=optional
 Export-Package: \
     it.water.service.rest.manager.cxf.*
 DynamicImport-Package: *

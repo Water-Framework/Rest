@@ -14,7 +14,7 @@ Import-Package: \
     javax.ws.rs.*,\
     it.water.core.*,\
     it.water.implementation.osgi.*,\
-    it.water.repository.*
+    it.water.repository.*;resolution:=optional
 Export-Package: \
     it.water.service.rest.*,\
     it.water.service.rest.api,\
