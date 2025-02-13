@@ -67,7 +67,6 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
     private WaterJacksonMapper waterJacksonMapper;
 
     private Server server;
-    private boolean stopped = true;
     private CxfJwtAuthenticationFilter jwtAuthenticationFilter;
 
     @OnActivate
@@ -84,8 +83,7 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
     public synchronized void startRestApiServer() {
         if (this.restApiRegistry == null)
             return;
-        if (!stopped)
-            this.stopRestApiServer();
+        this.stopRestApiServer();
         String restRootContext = (this.restOptions != null) ? this.restOptions.restRootContext() : "/water";
         log.info("Registering base REST resources under : {}", restRootContext);
         // configuring CXF Server with interceptors,features and providers
@@ -127,7 +125,6 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
                     //add all rest services as providers for the resource api
                     factory.setResourceProvider(resourceClass, resourceClassesAndProviders.get(resourceClass)));
             this.server = factory.create();
-            this.stopped = false;
             this.componentRegistry.registerComponent(Server.class, this.server, null);
         } else {
             log.warn("No Resource has been found for {}", Server.class.getName());
@@ -137,6 +134,15 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
     @Override
     @OnDeactivate
     public synchronized void stopRestApiServer() {
+        //if not instance we search for other server registered
+        if (this.server == null) {
+            try {
+                server = this.componentRegistry.findComponent(Server.class, null);
+            } catch (Exception e) {
+                log.debug("No running cxf server ...");
+            }
+        }
+
         try {
             if (server != null)
                 server.stop();
@@ -150,7 +156,13 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-        stopped = true;
+
+        try {
+            this.componentRegistry.unregisterComponent(Server.class, this.server);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+
         server = null;
     }
 

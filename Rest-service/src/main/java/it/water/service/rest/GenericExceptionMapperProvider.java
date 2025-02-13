@@ -27,6 +27,7 @@ import it.water.repository.entity.model.exceptions.NoResultException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
@@ -78,7 +79,7 @@ public class GenericExceptionMapperProvider implements ExceptionMapper<Throwable
         }
 
         BaseError error = handleException((Exception) ex);
-        return Response.status(error.getStatusCode()).entity(error).build();
+        return Response.status(error.getStatusCode()).entity(error).type(MediaType.APPLICATION_JSON_TYPE).build();
     }
 
     protected BaseError handleException(Exception t) {
