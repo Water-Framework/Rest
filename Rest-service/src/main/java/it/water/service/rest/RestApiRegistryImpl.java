@@ -28,25 +28,32 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @FrameworkComponent
 public class RestApiRegistryImpl implements RestApiRegistry {
     private Logger log = LoggerFactory.getLogger(RestApiRegistryImpl.class);
     private Map<Class<? extends RestApi>, Class<? extends RestApi>> registeredRestApis = new HashMap<>();
+    private UUID currentUuid = UUID.randomUUID();
+    private UUID lastUuid = null;
     @Inject
     @Setter
     private RestApiManager restApiManager;
 
     @Override
     public void addRestApiService(Class<? extends RestApi> restApiInterface, Class<? extends RestApi> concreteClass) {
-        this.registeredRestApis.put(restApiInterface, concreteClass);
-        signalRestApiManagerToRestart();
+        log.debug("Registering rest api interface {}", restApiInterface.getName());
+        currentUuid = UUID.randomUUID();
+        this.registeredRestApis.computeIfAbsent(restApiInterface, key -> concreteClass);
     }
 
     @Override
     public void removeRestApiService(Class<? extends RestApi> restApi) {
-        this.registeredRestApis.remove(restApi);
-        signalRestApiManagerToRestart();
+        log.debug("Removing rest api registration interface {}", restApi.getName());
+        if (this.registeredRestApis.containsKey(restApi)) {
+            currentUuid = UUID.randomUUID();
+            this.registeredRestApis.remove(restApi);
+        }
     }
 
     @Override
@@ -55,17 +62,16 @@ public class RestApiRegistryImpl implements RestApiRegistry {
     }
 
     @Override
+    public void sendRestartApiManagerRestartRequest() {
+        if (!currentUuid.equals(lastUuid) && restApiManager != null) {
+            lastUuid = currentUuid;
+            restApiManager.startRestApiServer();
+        }
+    }
+
+    @Override
     public Map<Class<? extends RestApi>, Class<?>> getRegisteredRestApis() {
         return Collections.unmodifiableMap(registeredRestApis);
     }
 
-    private void signalRestApiManagerToRestart() {
-        try {
-            if (restApiManager != null) {
-                restApiManager.startRestApiServer();
-            }
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
-    }
 }

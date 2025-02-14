@@ -76,7 +76,6 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
         this.restOptions = restOptions;
         this.waterJacksonMapper = waterJacksonMapper;
         this.componentRegistry = componentRegistry;
-        this.startRestApiServer();
     }
 
     @Override
@@ -112,6 +111,7 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
                 Class<?> concreteRestApiInterface = restApi;
                 //create a Per Request Resource Provider which instantiates a proxy of the correct interface per each request
                 resourceClassesAndProviders.put(concreteRestApiInterface, new PerRequestProxyProvider(componentRegistry, concreteRestApiInterface, serviceClass));
+                log.debug("Registered REST api: {} with implementation {}", serviceClass, concreteRestApiInterface);
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
             }
@@ -124,8 +124,10 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
             resourceClassesAndProviders.keySet().forEach(resourceClass ->
                     //add all rest services as providers for the resource api
                     factory.setResourceProvider(resourceClass, resourceClassesAndProviders.get(resourceClass)));
+            log.debug("Starting CXF Rest API Server....");
             this.server = factory.create();
             this.componentRegistry.registerComponent(Server.class, this.server, null);
+            log.debug("CXF Rest API Server Started!");
         } else {
             log.warn("No Resource has been found for {}", Server.class.getName());
         }
