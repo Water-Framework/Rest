@@ -59,6 +59,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:' + project.junitJupiterVersion
     testImplementation 'org.atteo.classindex:classindex:' + project.atteoClassIndexVersion
     testAnnotationProcessor('org.atteo.classindex:classindex:' + project.atteoClassIndexVersion)
+    testAnnotationProcessor 'org.projectlombok:lombok:' + project.lombokVersion
 }
 
 test {

@@ -15,7 +15,10 @@
  */
 package it.water.service.rest.spring.api;
 
+import it.water.core.api.model.ExpandableEntity;
+import it.water.core.api.model.User;
 import it.water.core.api.registry.ComponentRegistry;
+import it.water.core.api.security.Authenticable;
 import it.water.implementation.spring.annotations.EnableWaterFramework;
 import it.water.service.rest.api.security.jwt.JwtTokenService;
 import it.water.service.rest.spring.WaterRestSpringConfiguration;
@@ -25,13 +28,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @ExtendWith(SpringExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -87,6 +91,33 @@ class RestSpringApiTest {
         String responseBody = response.getBody();
         Assertions.assertTrue(!responseBody.isEmpty());
         System.out.println("SWAGGER:" + responseBody);
+    }
+
+    @Test
+    void testSuccessAuthenticatedOperation() {
+        User fakeUser = new FakeUser();
+        String token = "Bearer " + jwtTokenService.generateJwtToken((Authenticable) fakeUser);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", token); // Esempio di header personalizzato
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+        ResponseEntity<TestPojo> response = template.exchange("/test/authenticatedOperation", HttpMethod.GET, requestEntity, TestPojo.class);
+        TestPojo testPojo = response.getBody();
+        Assertions.assertEquals(200, response.getStatusCode().value());
+        Assertions.assertEquals("fieldA", testPojo.getFieldA());
+        Assertions.assertEquals("fieldB", testPojo.getFieldB());
+    }
+
+    @Test
+    void testAnonympusOperation() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("fieldA", "fieldA");
+        requestBody.put("fieldB", "fieldB");
+        HttpEntity<?> requestEntity = new HttpEntity<>(requestBody, headers);
+        ResponseEntity<?> response = template.exchange("/test/postAnonymousOperation", HttpMethod.POST, requestEntity, TestPojo.class);
+        Assertions.assertEquals(200, response.getStatusCode().value());
     }
 
 }

@@ -16,18 +16,30 @@
 package it.water.service.rest.spring.api;
 
 import it.water.service.rest.api.security.LoggedIn;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class TestRestController implements TestApi {
+
     @Override
     @LoggedIn(issuers = "it.water.service.rest.spring.api.FakeUser")
-    public String authenticatedOperation() {
-        return "ok";
+    public TestPojo authenticatedOperation() {
+        TestPojo testPojo = new TestPojo();
+        testPojo.setFieldA("fieldA");
+        testPojo.setFieldB("fieldB");
+        return testPojo;
     }
 
     @Override
-    public String anonymousOperation() {
-        return "ok";
+    public void postAnonymousOperation(TestPojo testPojo) {
+        Assertions.assertNotNull(testPojo);
+        Assertions.assertEquals("fieldA", testPojo.getFieldA());
+        Assertions.assertEquals("fieldB", testPojo.getFieldB());
+    }
+
+    @Override
+    public void anonymousOperation() {
+        Assertions.assertTrue(true);
     }
 }

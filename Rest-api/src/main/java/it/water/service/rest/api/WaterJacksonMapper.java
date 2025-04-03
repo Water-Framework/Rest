@@ -17,7 +17,10 @@
 package it.water.service.rest.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.water.core.api.registry.ComponentRegistry;
+import it.water.core.api.service.Service;
 
-public interface WaterJacksonMapper {
+public interface WaterJacksonMapper extends Service {
+    void init(ComponentRegistry componentRegistry);
     ObjectMapper getJacksonMapper();
 }

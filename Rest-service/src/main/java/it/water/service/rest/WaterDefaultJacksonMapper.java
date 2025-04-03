@@ -17,9 +17,13 @@
 package it.water.service.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.water.core.api.interceptors.OnActivate;
+import it.water.core.api.registry.ComponentRegistry;
 import it.water.core.interceptors.annotations.FrameworkComponent;
 import it.water.service.rest.api.WaterJacksonMapper;
+import it.water.service.rest.jackson.WaterJacksonModule;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @Author Aristide Cittadino.
@@ -29,11 +33,28 @@ import lombok.Getter;
  */
 @FrameworkComponent(services = WaterJacksonMapper.class, priority = 1)
 public class WaterDefaultJacksonMapper implements WaterJacksonMapper {
+
     @Getter
     private ObjectMapper mapper;
 
-    public WaterDefaultJacksonMapper() {
-        this.mapper = new ObjectMapper();
+    @Setter
+    private ComponentRegistry componentRegistry;
+
+    private boolean initialized;
+
+    public void init(ComponentRegistry componentRegistry) {
+        if (!initialized) {
+            this.componentRegistry = componentRegistry;
+            this.mapper = new ObjectMapper();
+            this.mapper.registerModule(new WaterJacksonModule(componentRegistry));
+            this.initialized = true;
+        }
+    }
+
+    @OnActivate
+    public void onActivate(ComponentRegistry registry) {
+        //registering water module for serialization and deserialization features
+        this.init(registry);
     }
 
     /**

@@ -19,9 +19,7 @@ import it.water.core.api.service.rest.FrameworkRestApi;
 import it.water.core.api.service.rest.RestApi;
 import it.water.service.rest.api.security.LoggedIn;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 @Path("/test")
@@ -29,12 +27,14 @@ import javax.ws.rs.core.MediaType;
 public interface RestTestApi extends RestApi {
     @LoggedIn(issuers = "it.water.service.rest.manager.cxf.FakeUser")
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/authenticatedOperation")
-    String authenticatedOperation();
+    TestPojo authenticatedOperation();
 
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/anonymousOperation")
-    String anonymousOperation();
+    void anonymousOperation(TestPojo testPojo);
 }

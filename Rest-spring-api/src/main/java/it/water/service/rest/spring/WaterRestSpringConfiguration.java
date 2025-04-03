@@ -52,6 +52,7 @@ public class WaterRestSpringConfiguration implements WebMvcConfigurer {
     @Bean
     public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
         MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+        waterJacksonMapper.init(componentRegistry);
         converter.setObjectMapper(waterJacksonMapper.getJacksonMapper());
         return converter;
     }

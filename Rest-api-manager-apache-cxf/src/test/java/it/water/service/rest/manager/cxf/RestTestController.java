@@ -15,16 +15,31 @@
  */
 package it.water.service.rest.manager.cxf;
 
+import it.water.core.api.model.EntityExtension;
+import it.water.core.api.model.ExpandableEntity;
 import it.water.core.api.service.rest.FrameworkRestController;
+import org.junit.jupiter.api.Assertions;
+
 @FrameworkRestController(referredRestApi = RestTestApi.class)
 public class RestTestController implements RestTestApi {
     @Override
-    public String authenticatedOperation() {
-        return "ok";
+    public TestPojo authenticatedOperation() {
+        TestPojo testPojo = new TestPojo();
+        testPojo.setFieldA("fieldA");
+        testPojo.setFieldB("fieldB");
+        TestPojoExtension testPojoExtension = new TestPojoExtension();
+        testPojoExtension.setExtensionField("extensionField");
+        testPojo.setExtension(testPojoExtension);
+        return testPojo;
     }
 
     @Override
-    public String anonymousOperation() {
-        return "ok";
+    public void anonymousOperation(TestPojo testPojo) {
+        Assertions.assertNotNull(testPojo);
+        Assertions.assertEquals("fieldA", testPojo.getFieldA());
+        Assertions.assertEquals("fieldB", testPojo.getFieldB());
+        TestPojoExtension testPojoExtension = (TestPojoExtension) testPojo.getExtension();
+        Assertions.assertEquals("extensionField",testPojoExtension.getExtensionField());
+        Assertions.assertNotNull(testPojo.getExtension());
     }
 }

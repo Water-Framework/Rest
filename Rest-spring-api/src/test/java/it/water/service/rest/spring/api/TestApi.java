@@ -18,6 +18,8 @@ package it.water.service.rest.spring.api;
 import it.water.core.api.service.rest.RestApi;
 import it.water.service.rest.api.security.LoggedIn;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.ws.rs.Produces;
@@ -30,10 +32,15 @@ public interface TestApi extends RestApi {
     @Produces(MediaType.TEXT_PLAIN)
     @GetMapping
     @RequestMapping("/authenticatedOperation")
-    String authenticatedOperation();
+    TestPojo authenticatedOperation();
+
+    @PostMapping
+    @Produces(MediaType.TEXT_PLAIN)
+    @RequestMapping("/postAnonymousOperation")
+    void postAnonymousOperation(@RequestBody TestPojo testPojo);
 
     @GetMapping
     @Produces(MediaType.TEXT_PLAIN)
     @RequestMapping("/anonymousOperation")
-    String anonymousOperation();
+    void anonymousOperation();
 }
