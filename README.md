@@ -109,7 +109,7 @@ Rest/
 │           │   └── StatusController.java
 │           └── exception/ # Spring Exception Management
 │               └── SpringExceptionMapper.java
-└── README.md                       # Project documentation (this file)
+└── README.md                       # Project documentation
 ```
 
 ## Getting Started
