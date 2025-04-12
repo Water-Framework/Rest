@@ -1,5 +1,6 @@
 {
   "generator-water": {
+    "hasSonarqubeIntegration": true,
     "publishRepo": true,
     "publishRepoName": "asc-water-repository",
     "publishRepoUrl": "https://nexus.acsoftware.it/nexus/repository/maven-water/",
@@ -21,7 +22,7 @@
     "hasRestServices": false,
     "hasActions": false,
     "hasModel": false,
-    "projectPath":"Rest",
+    "projectPath": "Rest",
     "projectApiPath": "Rest/Rest-api",
     "projectActionsPath": "Rest/Rest-actions",
     "projectFeaturesPath": "Rest/Rest-features",
