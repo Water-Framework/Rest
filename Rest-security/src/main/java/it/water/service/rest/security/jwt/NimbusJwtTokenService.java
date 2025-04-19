@@ -258,6 +258,8 @@ public class NimbusJwtTokenService implements JwtTokenService {
      * @return
      */
     private RSAPublicKey retrievePublicKeyFromJWSUrl(String keyId) {
+        //TODO make some cache on the public key
+        //TODO cache token validation to improve speed on already validated tokens
         try {
             URL jwksURL = new URL(jwtSecurityOptions.jwsURL());
             JWKSet jwkSet = JWKSet.load(jwksURL);
