@@ -47,7 +47,7 @@ public class RestControllerProxy extends WaterAbstractInterceptor<RestApi> imple
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         log.debug("Invoking method {} with args {}", method, args);
         Class<?>[] argsClasses = (args == null) ? null : new Class[args.length];
-        for (int i = 0; args != null && i < args.length; i++) {
+        for (int i = 0; argsClasses != null && i < args.length; i++) {
             argsClasses[i] = method.getParameterTypes()[i];
         }
         //Since invocation happens on the generic interface, the system must match the interface method with the implementation

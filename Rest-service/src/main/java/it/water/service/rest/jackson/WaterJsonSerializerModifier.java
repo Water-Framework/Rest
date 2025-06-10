@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 
 public class WaterJsonSerializerModifier extends BeanSerializerModifier {
+    @SuppressWarnings("unchecked")
     @Override
     public JsonSerializer<?> modifySerializer(
             SerializationConfig config,

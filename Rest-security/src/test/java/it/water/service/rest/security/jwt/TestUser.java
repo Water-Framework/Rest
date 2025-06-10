@@ -15,17 +15,16 @@
  */
 package it.water.service.rest.security.jwt;
 
-import it.water.core.api.model.Role;
-import it.water.core.api.model.User;
-import it.water.core.api.security.Authenticable;
-import lombok.AllArgsConstructor;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
+import it.water.core.api.model.Role;
+import it.water.core.api.model.User;
+import lombok.AllArgsConstructor;
+
 @AllArgsConstructor
-public class TestUser implements Authenticable, User {
+public class TestUser implements User {
     private String screenName;
     private Set<TestRole> roles;
 

@@ -15,14 +15,13 @@
  */
 package it.water.service.rest.spring.api;
 
-import it.water.core.api.model.Role;
-import it.water.core.api.model.User;
-import it.water.core.api.security.Authenticable;
-
 import java.util.Collection;
 import java.util.Collections;
 
-public class FakeUser implements User, Authenticable {
+import it.water.core.api.model.Role;
+import it.water.core.api.model.User;
+
+public class FakeUser implements User {
     @Override
     public String getName() {
         return "Fake";

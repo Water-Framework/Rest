@@ -15,27 +15,34 @@
  */
 package it.water.service.rest.spring.api;
 
-import it.water.core.api.model.ExpandableEntity;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 import it.water.core.api.model.User;
 import it.water.core.api.registry.ComponentRegistry;
 import it.water.core.api.security.Authenticable;
 import it.water.implementation.spring.annotations.EnableWaterFramework;
 import it.water.service.rest.api.security.jwt.JwtTokenService;
 import it.water.service.rest.spring.WaterRestSpringConfiguration;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.context.ApplicationContext;
-import org.springframework.http.*;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 @ExtendWith(SpringExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -49,25 +56,30 @@ class RestSpringApiTest {
     private TestRestTemplate template;
     @Autowired
     private TestRestController testRestController;
+    @SuppressWarnings("unused")
     @Autowired
     private ComponentRegistry componentRegistry;
     @Autowired
     private JwtTokenService jwtTokenService;
+    @SuppressWarnings("unused")
     @Autowired
     private ApplicationContext applicationContext;
 
+    @SuppressWarnings("deprecation")
     @Test
     void checkRootApi() {
         ResponseEntity<String> response = template.getForEntity("/", String.class);
         Assertions.assertEquals(200, response.getStatusCodeValue());
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     void checkStatusApi() {
         ResponseEntity<String> response = template.getForEntity("/status", String.class);
         Assertions.assertEquals(200, response.getStatusCodeValue());
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     void checkSecurityFilter() {
         ResponseEntity<String> response = template.getForEntity("/test/anonymousOperation", String.class);
@@ -79,11 +91,13 @@ class RestSpringApiTest {
         String jwt = this.jwtTokenService.generateJwtToken(fk);
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + jwt);
+        @SuppressWarnings({ "rawtypes", "unchecked" })
         HttpEntity httpEntity = new HttpEntity(headers);
         response = template.exchange("/test/authenticatedOperation", HttpMethod.GET, httpEntity, String.class);
         Assertions.assertEquals(200, response.getStatusCodeValue());
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     void getSwagger() {
         ResponseEntity<String> response = template.getForEntity("/v3/api-docs", String.class);

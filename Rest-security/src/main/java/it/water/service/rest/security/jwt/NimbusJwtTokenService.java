@@ -152,6 +152,7 @@ public class NimbusJwtTokenService implements JwtTokenService {
      * @return
      */
     @Override
+    @SuppressWarnings("unchecked")
     public Set<Principal> getPrincipals(String jwtTokenStr) {
         if (!verifySignature(jwtTokenStr))
             return Collections.emptySet();

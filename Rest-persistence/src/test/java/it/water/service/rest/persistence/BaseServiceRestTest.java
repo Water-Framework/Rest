@@ -15,19 +15,8 @@
  */
 package it.water.service.rest.persistence;
 
-import it.water.core.api.model.PaginableResult;
-import it.water.core.api.repository.query.Query;
-import it.water.core.api.repository.query.QueryOrder;
-import it.water.core.model.exceptions.ValidationException;
-import it.water.core.model.exceptions.WaterRuntimeException;
-import it.water.core.permission.exceptions.UnauthorizedException;
-import it.water.repository.entity.model.PaginatedResult;
-import it.water.repository.entity.model.exceptions.DuplicateEntityException;
-import it.water.repository.entity.model.exceptions.EntityNotFound;
-import it.water.repository.query.order.DefaultQueryOrder;
-import it.water.service.rest.persistence.test.TestEntityServiceRest;
-import it.water.service.rest.persistence.test.entity.TestEntity;
-import it.water.service.rest.persistence.test.service.TestEntityServiceImpl;
+import java.util.Arrays;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -37,7 +26,16 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
+import it.water.core.api.model.PaginableResult;
+import it.water.core.model.exceptions.ValidationException;
+import it.water.core.model.exceptions.WaterRuntimeException;
+import it.water.core.permission.exceptions.UnauthorizedException;
+import it.water.repository.entity.model.PaginatedResult;
+import it.water.repository.entity.model.exceptions.DuplicateEntityException;
+import it.water.repository.entity.model.exceptions.EntityNotFound;
+import it.water.service.rest.persistence.test.TestEntityServiceRest;
+import it.water.service.rest.persistence.test.entity.TestEntity;
+import it.water.service.rest.persistence.test.service.TestEntityServiceImpl;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockitoExtension.class)

@@ -15,10 +15,9 @@
  */
 package it.water.service.rest.manager.cxf;
 
-import it.water.core.api.model.EntityExtension;
-import it.water.core.api.model.ExpandableEntity;
-import it.water.core.api.service.rest.FrameworkRestController;
 import org.junit.jupiter.api.Assertions;
+
+import it.water.core.api.service.rest.FrameworkRestController;
 
 @FrameworkRestController(referredRestApi = RestTestApi.class)
 public class RestTestController implements RestTestApi {

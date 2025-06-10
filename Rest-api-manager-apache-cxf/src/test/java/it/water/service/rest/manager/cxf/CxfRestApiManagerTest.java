@@ -61,6 +61,7 @@ class CxfRestApiManagerTest implements Service {
     void testRootRestService() throws IOException, ParseException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(baseApiUrl);
+        @SuppressWarnings("deprecation")
         ClassicHttpResponse response = httpClient.execute(httpGet);
         String responseBody = EntityUtils.toString(response.getEntity());
         Assertions.assertEquals(200, response.getCode());
@@ -72,6 +73,7 @@ class CxfRestApiManagerTest implements Service {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String apiUrl = baseApiUrl + "/status";
         HttpGet httpGet = new HttpGet(apiUrl);
+        @SuppressWarnings("deprecation")
         ClassicHttpResponse response = httpClient.execute(httpGet);
         String responseBody = EntityUtils.toString(response.getEntity());
         Assertions.assertEquals(200, response.getCode());
@@ -83,6 +85,7 @@ class CxfRestApiManagerTest implements Service {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String apiUrl = baseApiUrl + "/swagger.json";
         HttpGet httpGet = new HttpGet(apiUrl);
+        @SuppressWarnings("deprecation")
         ClassicHttpResponse response = httpClient.execute(httpGet);
         String responseBody = EntityUtils.toString(response.getEntity());
         Assertions.assertEquals(200, response.getCode());
@@ -95,12 +98,14 @@ class CxfRestApiManagerTest implements Service {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String apiUrl = baseApiUrl + "/test/authenticatedOperation";
         HttpGet httpGet = new HttpGet(apiUrl);
+        @SuppressWarnings("deprecation")
         ClassicHttpResponse response = httpClient.execute(httpGet);
         String responseBody = EntityUtils.toString(response.getEntity());
         Assertions.assertEquals(401, response.getCode());
         Assertions.assertTrue(!responseBody.isEmpty());
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Test
     void testSuccessAuthenticatedOperation() throws IOException, ParseException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -112,6 +117,7 @@ class CxfRestApiManagerTest implements Service {
         httpGet.setHeader("Authorization", token);
         httpGet.setHeader("Content-Type", "application/json");
         httpGet.setHeader("Accept", "application/json");
+        @SuppressWarnings("deprecation")
         ClassicHttpResponse response = httpClient.execute(httpGet);
         String responseBody = EntityUtils.toString(response.getEntity());
         System.out.println("RESPONSE:" + responseBody);
@@ -133,6 +139,7 @@ class CxfRestApiManagerTest implements Service {
         httpPost.setEntity(httpEntity);
         httpPost.setHeader("Content-Type", "application/json");
         httpPost.setHeader("Accept", "application/json");
+        @SuppressWarnings("deprecation")
         ClassicHttpResponse response = httpClient.execute(httpPost);
         Assertions.assertEquals(204, response.getCode());
     }

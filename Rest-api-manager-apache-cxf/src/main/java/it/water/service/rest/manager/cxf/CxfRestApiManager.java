@@ -15,12 +15,28 @@
  */
 package it.water.service.rest.manager.cxf;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.ws.rs.container.ContainerRequestFilter;
+
+import it.water.core.api.service.rest.RestApiManager;
+import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.feature.Feature;
+import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
+import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
+import org.apache.cxf.jaxrs.swagger.Swagger2Feature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+
 import it.water.core.api.interceptors.OnActivate;
 import it.water.core.api.interceptors.OnDeactivate;
 import it.water.core.api.registry.ComponentRegistry;
 import it.water.core.api.service.rest.RestApi;
-import it.water.core.api.service.rest.RestApiManager;
 import it.water.core.api.service.rest.RestApiRegistry;
 import it.water.core.interceptors.annotations.FrameworkComponent;
 import it.water.core.interceptors.annotations.Inject;
@@ -30,19 +46,6 @@ import it.water.service.rest.api.WaterJacksonMapper;
 import it.water.service.rest.api.options.RestOptions;
 import it.water.service.rest.manager.cxf.security.filters.jwt.CxfJwtAuthenticationFilter;
 import lombok.Setter;
-import org.apache.cxf.endpoint.Server;
-import org.apache.cxf.feature.Feature;
-import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
-import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
-import org.apache.cxf.jaxrs.swagger.Swagger2Feature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.container.ContainerRequestFilter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @Author Aristide Cittadino
