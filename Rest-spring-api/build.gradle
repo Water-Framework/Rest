@@ -18,7 +18,7 @@ dependencies {
     implementation group: 'it.water.distribution', name: 'Water-distribution-spring', version: project.waterVersion
 
     implementation project(":Rest-api")
-    implementationInclude(project(":Rest-service"))
+    implementationInclude project(":Rest-service")
     implementation project(":Rest-security")
 
     testImplementation(project(":Rest-service"))
@@ -43,21 +43,6 @@ dependencies {
 
 test {
     useJUnitPlatform()
-}
-
-jar {
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    doFirst {
-        def annotationsPath = "$buildDir/classes/java/main/META-INF/annotations"
-        def serviceDir = file(annotationsPath)
-        // copy all deps annotations
-        for (file in project.configurations.implementationInclude) {
-            zipTree(file).matching { include 'META-INF/annotations/*' }.each { f ->
-                new File(serviceDir, f.name) << f.getText("UTF-8")
-            }
-        }
-    }
-
 }
 
 publishing {
