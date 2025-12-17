@@ -20,7 +20,6 @@ import it.water.service.rest.api.WaterJacksonMapper;
 import it.water.service.rest.spring.security.SpringJwtAuthenticationFilter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -55,17 +54,13 @@ public class WaterRestSpringConfiguration implements WebMvcConfigurer {
     }
 
     @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> messageConverters) {
-        messageConverters.add(mappingJackson2HttpMessageConverter());
-    }
-
-    @Bean
-    public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
-        if (jackson2HttpMessageConverter == null) {
-            waterJacksonMapper.init(componentRegistry);
-            jackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter(waterJacksonMapper.getJacksonMapper());
+    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+        for (HttpMessageConverter<?> converter : converters) {
+            if (converter instanceof MappingJackson2HttpMessageConverter jacksonConverter) {
+                // Aggiorna l'ObjectMapper del converter di default
+                waterJacksonMapper.init(componentRegistry);
+                jacksonConverter.setObjectMapper(waterJacksonMapper.getJacksonMapper());
+            }
         }
-        return jackson2HttpMessageConverter;
     }
-
 }

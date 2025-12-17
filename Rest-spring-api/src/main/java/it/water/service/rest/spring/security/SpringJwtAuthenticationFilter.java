@@ -58,8 +58,7 @@ public class SpringJwtAuthenticationFilter extends GenericJWTAuthFilter implemen
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         log.debug("Pre handle: {}", SpringJwtAuthenticationFilter.class.getName());
         RestOptions restOptions = this.retrieveRestOptions();
-        if (restOptions.securityOptions().validateJwt()) {
-            HandlerMethod handlerMethod = (HandlerMethod) handler;
+        if (restOptions.securityOptions().validateJwt() && handler instanceof HandlerMethod handlerMethod) {
             Method method = handlerMethod.getMethod();
             LoggedIn annotation = (LoggedIn) this.getAnnotationFromHierarchy(LoggedIn.class, method);
             if (annotation != null) {
