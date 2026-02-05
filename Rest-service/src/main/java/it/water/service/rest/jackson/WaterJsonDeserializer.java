@@ -43,12 +43,8 @@ public class WaterJsonDeserializer extends JsonDeserializer<Object> implements C
             Map<String, Object> extraFields = expandableEntity.getExtraFields();
             EntityExtensionService entityExtensionService = checkExtensionServiceExists(result);
             if (extraFields != null && !extraFields.isEmpty() && entityExtensionService != null) {
-                try {
-                    EntityExtension extension = (EntityExtension) objectMapper.convertValue(extraFields, entityExtensionService.type());
-                    expandableEntity.setExtension(extension);
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
-                }
+                EntityExtension extension = (EntityExtension) objectMapper.convertValue(extraFields, entityExtensionService.type());
+                expandableEntity.setExtension(extension);
             }
         }
         return result;
