@@ -95,6 +95,7 @@ waterDescriptor {
 
     properties {
         property('water.rest.services.url') {
+            name         = 'Services Base URL'
             type         = 'url'
             envVar       = 'WATER_SERVICE_URL'
             required     = false
@@ -103,6 +104,7 @@ waterDescriptor {
             description  = 'Base URL of the Water REST services (used for service-to-service calls)'
         }
         property('water.rest.frontend.url') {
+            name         = 'Frontend URL'
             type         = 'url'
             envVar       = 'WATER_FRONTEND_URL'
             required     = false
@@ -111,6 +113,7 @@ waterDescriptor {
             description  = 'Base URL of the frontend application (used for CORS and redirect)'
         }
         property('water.rest.root.context') {
+            name         = 'Root Context'
             type         = 'string'
             envVar       = 'WATER_REST_CONTEXT'
             required     = false
@@ -119,6 +122,7 @@ waterDescriptor {
             description  = 'Root context path for all Water REST endpoints'
         }
         property('water.rest.uploadFolder.path') {
+            name         = 'Upload Folder'
             type         = 'string'
             envVar       = 'WATER_REST_UPLOAD_ASSETS_FOLDER'
             required     = false
@@ -127,6 +131,7 @@ waterDescriptor {
             description  = 'Filesystem path for uploaded file storage'
         }
         property('water.rest.uploadFolder.maxFileSize') {
+            name         = 'Max File Size'
             type         = 'integer'
             envVar       = 'WATER_REST_UPLOAD_MAX_SIZE'
             required     = false
@@ -135,6 +140,7 @@ waterDescriptor {
             description  = 'Maximum upload file size in bytes'
         }
         property('water.rest.security.jwt.validate') {
+            name         = 'JWT Validation'
             type         = 'boolean'
             envVar       = 'WATER_REST_SECURITY_VALIDATE_JWT'
             required     = false
@@ -143,6 +149,7 @@ waterDescriptor {
             description  = 'Enable JWT token validation on all REST endpoints'
         }
         property('water.rest.security.jwt.validate.by.jws') {
+            name         = 'JWS Validation'
             type         = 'boolean'
             envVar       = 'WATER_REST_SECURITY_VALIDATE_WITH_JWS'
             required     = false
@@ -151,6 +158,7 @@ waterDescriptor {
             description  = 'Validate JWT tokens against a remote JWS endpoint'
         }
         property('water.rest.security.jwt.encrypt') {
+            name         = 'JWT Encryption'
             type         = 'boolean'
             envVar       = 'WATER_REST_SECURITY_JWT_ENCRYPT'
             required     = false
@@ -159,6 +167,7 @@ waterDescriptor {
             description  = 'Encrypt JWT tokens (JWE) instead of plain signed JWT'
         }
         property('water.rest.security.jwt.jws.url') {
+            name         = 'JWS Endpoint URL'
             type         = 'url'
             envVar       = 'WATER_REST_SECURITY_JWS_URL'
             required     = false
@@ -167,6 +176,7 @@ waterDescriptor {
             description  = 'URL of the JWS endpoint for remote JWT validation'
         }
         property('water.rest.security.jwt.duration.millis') {
+            name         = 'JWT Duration (ms)'
             type         = 'integer'
             envVar       = 'WATER_REST_SECURITY_JWT_MILLIS_EXPIRATION'
             required     = false
@@ -175,6 +185,7 @@ waterDescriptor {
             description  = 'JWT token validity duration in milliseconds (default: 1 hour)'
         }
         property('water.service.rest.security.jwt.validate.by.jws.key.id') {
+            name         = 'Validate by JWK Key ID'
             type         = 'boolean'
             envVar       = 'WATER_REST_SECURITY_VALIDATE_BY_JWK_KEY'
             required     = false
