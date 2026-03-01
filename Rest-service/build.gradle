@@ -87,4 +87,100 @@ publishing {
         	}
     }
  }
- 
+
+waterDescriptor {
+    moduleId    = 'it.water.rest'
+    displayName = 'Rest Service'
+    description = 'HTTP REST infrastructure providing JAX-RS/Spring MVC routing, JWT security filters, and JSON serialization for Water Framework endpoints'
+
+    properties {
+        property('water.rest.services.url') {
+            type         = 'url'
+            envVar       = 'WATER_SERVICE_URL'
+            required     = false
+            sensitive    = false
+            defaultValue = 'http://localhost:8181'
+            description  = 'Base URL of the Water REST services (used for service-to-service calls)'
+        }
+        property('water.rest.frontend.url') {
+            type         = 'url'
+            envVar       = 'WATER_FRONTEND_URL'
+            required     = false
+            sensitive    = false
+            defaultValue = 'http://localhost:4200'
+            description  = 'Base URL of the frontend application (used for CORS and redirect)'
+        }
+        property('water.rest.root.context') {
+            type         = 'string'
+            envVar       = 'WATER_REST_CONTEXT'
+            required     = false
+            sensitive    = false
+            defaultValue = '/water'
+            description  = 'Root context path for all Water REST endpoints'
+        }
+        property('water.rest.uploadFolder.path') {
+            type         = 'string'
+            envVar       = 'WATER_REST_UPLOAD_ASSETS_FOLDER'
+            required     = false
+            sensitive    = false
+            defaultValue = './data/assets/'
+            description  = 'Filesystem path for uploaded file storage'
+        }
+        property('water.rest.uploadFolder.maxFileSize') {
+            type         = 'integer'
+            envVar       = 'WATER_REST_UPLOAD_MAX_SIZE'
+            required     = false
+            sensitive    = false
+            defaultValue = '1000000'
+            description  = 'Maximum upload file size in bytes'
+        }
+        property('water.rest.security.jwt.validate') {
+            type         = 'boolean'
+            envVar       = 'WATER_REST_SECURITY_VALIDATE_JWT'
+            required     = false
+            sensitive    = false
+            defaultValue = 'true'
+            description  = 'Enable JWT token validation on all REST endpoints'
+        }
+        property('water.rest.security.jwt.validate.by.jws') {
+            type         = 'boolean'
+            envVar       = 'WATER_REST_SECURITY_VALIDATE_WITH_JWS'
+            required     = false
+            sensitive    = false
+            defaultValue = 'false'
+            description  = 'Validate JWT tokens against a remote JWS endpoint'
+        }
+        property('water.rest.security.jwt.encrypt') {
+            type         = 'boolean'
+            envVar       = 'WATER_REST_SECURITY_JWT_ENCRYPT'
+            required     = false
+            sensitive    = false
+            defaultValue = 'false'
+            description  = 'Encrypt JWT tokens (JWE) instead of plain signed JWT'
+        }
+        property('water.rest.security.jwt.jws.url') {
+            type         = 'url'
+            envVar       = 'WATER_REST_SECURITY_JWS_URL'
+            required     = false
+            sensitive    = false
+            defaultValue = ''
+            description  = 'URL of the JWS endpoint for remote JWT validation'
+        }
+        property('water.rest.security.jwt.duration.millis') {
+            type         = 'integer'
+            envVar       = 'WATER_REST_SECURITY_JWT_MILLIS_EXPIRATION'
+            required     = false
+            sensitive    = false
+            defaultValue = '3600000'
+            description  = 'JWT token validity duration in milliseconds (default: 1 hour)'
+        }
+        property('water.service.rest.security.jwt.validate.by.jws.key.id') {
+            type         = 'boolean'
+            envVar       = 'WATER_REST_SECURITY_VALIDATE_BY_JWK_KEY'
+            required     = false
+            sensitive    = false
+            defaultValue = 'true'
+            description  = 'Match JWT kid header against the JWK key ID during validation'
+        }
+    }
+}
