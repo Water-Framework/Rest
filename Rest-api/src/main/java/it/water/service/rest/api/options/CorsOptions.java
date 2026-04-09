@@ -19,20 +19,16 @@ import it.water.core.api.service.Service;
 
 /**
  * @Author Aristide Cittadino
- * Class which maps all the rest available options
+ * Class which maps all CORS available options
  */
-public interface RestOptions extends Service {
-    String frontendUrl();
+public interface CorsOptions extends Service {
+    String allowedOrigins();
 
-    String servicesUrl();
+    String allowedMethods();
 
-    String restRootContext();
+    String allowedHeaders();
 
-    String uploadFolderPath();
+    boolean allowCredentials();
 
-    long uploadMaxFileSize();
-
-    JwtSecurityOptions securityOptions();
-
-    CorsOptions corsOptions();
+    long maxAge();
 }

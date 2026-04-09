@@ -25,4 +25,10 @@ public class RestConstants {
     public static final String REST_PROP_ROOT_CONTEXT = "water.rest.root.context";
     public static final String REST_PROP_UPLOAD_PATH = "water.rest.uploadFolder.path";
     public static final String REST_PROP_UPLOAD_MAX_FILE_SIZE = "water.rest.uploadFolder.maxFileSize";
+
+    public static final String REST_PROP_CORS_ORIGINS = "water.rest.cors.origins";
+    public static final String REST_PROP_CORS_METHODS = "water.rest.cors.methods";
+    public static final String REST_PROP_CORS_HEADERS = "water.rest.cors.headers";
+    public static final String REST_PROP_CORS_CREDENTIALS = "water.rest.cors.credentials";
+    public static final String REST_PROP_CORS_MAX_AGE = "water.rest.cors.maxAge";
 }

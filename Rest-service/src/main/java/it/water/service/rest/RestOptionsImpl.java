@@ -18,6 +18,7 @@ package it.water.service.rest;
 import it.water.core.api.bundle.ApplicationProperties;
 import it.water.core.interceptors.annotations.FrameworkComponent;
 import it.water.core.interceptors.annotations.Inject;
+import it.water.service.rest.api.options.CorsOptions;
 import it.water.service.rest.api.options.JwtSecurityOptions;
 import it.water.service.rest.api.options.RestOptions;
 import lombok.Getter;
@@ -34,6 +35,11 @@ public class RestOptionsImpl implements RestOptions {
     @Setter
     @Getter
     private JwtSecurityOptions jwtSecurityOptions;
+
+    @Inject
+    @Setter
+    @Getter
+    private CorsOptions corsOptions;
 
     @Inject
     @Setter
@@ -77,5 +83,10 @@ public class RestOptionsImpl implements RestOptions {
     @Override
     public JwtSecurityOptions securityOptions() {
         return getJwtSecurityOptions();
+    }
+
+    @Override
+    public CorsOptions corsOptions() {
+        return getCorsOptions();
     }
 }

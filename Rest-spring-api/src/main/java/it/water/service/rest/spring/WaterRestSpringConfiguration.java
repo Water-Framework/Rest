@@ -20,14 +20,22 @@ import it.water.service.rest.api.WaterJacksonMapper;
 import it.water.service.rest.spring.security.SpringJwtAuthenticationFilter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -42,7 +50,20 @@ public class WaterRestSpringConfiguration implements WebMvcConfigurer {
     @Setter
     private WaterJacksonMapper waterJacksonMapper;
 
-    private MappingJackson2HttpMessageConverter jackson2HttpMessageConverter;
+    @Value("${water.rest.cors.origins}")
+    private String corsOrigins;
+
+    @Value("${water.rest.cors.methods}")
+    private String corsMethods;
+
+    @Value("${water.rest.cors.headers}")
+    private String corsHeaders;
+
+    @Value("${water.rest.cors.credentials}")
+    private boolean corsCredentials;
+
+    @Value("${water.rest.cors.maxAge}")
+    private long corsMaxAge;
 
     public WaterRestSpringConfiguration() {
         super();
@@ -62,5 +83,19 @@ public class WaterRestSpringConfiguration implements WebMvcConfigurer {
                 jacksonConverter.setObjectMapper(waterJacksonMapper.getJacksonMapper());
             }
         }
+    }
+
+    @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public CorsFilter corsFilter() {
+        CorsConfiguration config = new CorsConfiguration();
+        Arrays.stream(corsOrigins.split(",")).map(String::trim).forEach(config::addAllowedOriginPattern);
+        Arrays.stream(corsMethods.split(",")).map(String::trim).forEach(config::addAllowedMethod);
+        Arrays.stream(corsHeaders.split(",")).map(String::trim).forEach(config::addAllowedHeader);
+        config.setAllowCredentials(corsCredentials);
+        config.setMaxAge(corsMaxAge);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return new CorsFilter(source);
     }
 }
