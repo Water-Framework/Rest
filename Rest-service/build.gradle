@@ -92,6 +92,7 @@ waterDescriptor {
     moduleId    = 'it.water.rest'
     displayName = 'Rest Service'
     description = 'HTTP REST infrastructure providing JAX-RS/Spring MVC routing, JWT security filters, and JSON serialization for Water Framework endpoints'
+    componentsPackage = 'it.water.service.rest'
 
     properties {
         property('water.rest.services.url') {
