@@ -50,19 +50,19 @@ public class WaterRestSpringConfiguration implements WebMvcConfigurer {
     @Setter
     private WaterJacksonMapper waterJacksonMapper;
 
-    @Value("${water.rest.cors.origins}")
+    @Value("${water.rest.cors.origins:*}")
     private String corsOrigins;
 
-    @Value("${water.rest.cors.methods}")
+    @Value("${water.rest.cors.methods:GET,POST,PUT,DELETE,OPTIONS,PATCH}")
     private String corsMethods;
 
-    @Value("${water.rest.cors.headers}")
+    @Value("${water.rest.cors.headers:*}")
     private String corsHeaders;
 
-    @Value("${water.rest.cors.credentials}")
+    @Value("${water.rest.cors.credentials:false}")
     private boolean corsCredentials;
 
-    @Value("${water.rest.cors.maxAge}")
+    @Value("${water.rest.cors.maxAge:3600}")
     private long corsMaxAge;
 
     public WaterRestSpringConfiguration() {
