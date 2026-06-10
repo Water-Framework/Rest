@@ -36,7 +36,8 @@ public class CorsOptionsImpl implements CorsOptions {
     @Override
     public String allowedOrigins() {
         Object val = applicationProperties.getProperty(RestConstants.REST_PROP_CORS_ORIGINS);
-        return val != null ? String.valueOf(val) : "*";
+        //secure-by-default: no origin allowed unless explicitly configured
+        return val != null ? String.valueOf(val) : "";
     }
 
     @Override
@@ -54,7 +55,8 @@ public class CorsOptionsImpl implements CorsOptions {
     @Override
     public boolean allowCredentials() {
         Object val = applicationProperties.getProperty(RestConstants.REST_PROP_CORS_CREDENTIALS);
-        return val != null ? Boolean.parseBoolean(String.valueOf(val)) : true;
+        //credentials disabled by default, opt-in via water.rest.cors.credentials
+        return val != null && Boolean.parseBoolean(String.valueOf(val));
     }
 
     @Override

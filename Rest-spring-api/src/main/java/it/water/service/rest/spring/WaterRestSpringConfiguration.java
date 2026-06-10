@@ -42,6 +42,8 @@ import java.util.List;
 @EnableWebMvc
 @ComponentScan("it.water.service.rest.*")
 public class WaterRestSpringConfiguration implements WebMvcConfigurer {
+    private static final String CSV_SEPARATOR = ",";
+
     @Autowired
     @Setter
     private ComponentRegistry componentRegistry;
@@ -50,13 +52,14 @@ public class WaterRestSpringConfiguration implements WebMvcConfigurer {
     @Setter
     private WaterJacksonMapper waterJacksonMapper;
 
-    @Value("${water.rest.cors.origins:*}")
+    //secure-by-default: empty allow-list = no cross-site origin permitted
+    @Value("${water.rest.cors.origins:}")
     private String corsOrigins;
 
     @Value("${water.rest.cors.methods:GET,POST,PUT,DELETE,OPTIONS,PATCH}")
     private String corsMethods;
 
-    @Value("${water.rest.cors.headers:*}")
+    @Value("${water.rest.cors.headers:Authorization,Content-Type}")
     private String corsHeaders;
 
     @Value("${water.rest.cors.credentials:false}")
@@ -89,10 +92,22 @@ public class WaterRestSpringConfiguration implements WebMvcConfigurer {
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        Arrays.stream(corsOrigins.split(",")).map(String::trim).forEach(config::addAllowedOriginPattern);
-        Arrays.stream(corsMethods.split(",")).map(String::trim).forEach(config::addAllowedMethod);
-        Arrays.stream(corsHeaders.split(",")).map(String::trim).forEach(config::addAllowedHeader);
-        config.setAllowCredentials(corsCredentials);
+        //H10: exact-match allow-list (addAllowedOrigin), never addAllowedOriginPattern("*")
+        Arrays.stream(corsOrigins.split(CSV_SEPARATOR))
+                .map(String::trim)
+                .filter(origin -> !origin.isEmpty())
+                .forEach(config::addAllowedOrigin);
+        Arrays.stream(corsMethods.split(CSV_SEPARATOR))
+                .map(String::trim)
+                .filter(method -> !method.isEmpty())
+                .forEach(config::addAllowedMethod);
+        Arrays.stream(corsHeaders.split(CSV_SEPARATOR))
+                .map(String::trim)
+                .filter(header -> !header.isEmpty())
+                .forEach(config::addAllowedHeader);
+        //H10: never allow the insecure "wildcard origin + credentials" combination
+        boolean wildcardOrigin = config.getAllowedOrigins() != null  && config.getAllowedOrigins().contains(CorsConfiguration.ALL);
+        config.setAllowCredentials(corsCredentials && !wildcardOrigin);
         config.setMaxAge(corsMaxAge);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
