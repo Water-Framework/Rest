@@ -48,6 +48,15 @@ public interface JwtTokenService extends Service {
 
 
     /**
+     * Revokes a previously issued token (logout): the token's jti is added to the revocation
+     * denylist until its natural expiry, so it no longer passes validation. No-op if the token is
+     * unparseable or carries no jti (logout must be idempotent and safe).
+     *
+     * @param token raw (signed) JWT string
+     */
+    void revokeToken(String token);
+
+    /**
      * @param jwtToken
      * @return principal list containing Role principals and User Principal
      */

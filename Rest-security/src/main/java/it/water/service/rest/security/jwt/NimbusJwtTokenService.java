@@ -62,6 +62,10 @@ public class NimbusJwtTokenService implements JwtTokenService {
     @Setter
     private JwtSecurityOptions jwtSecurityOptions;
 
+    @Inject
+    @Setter
+    private TokenRevocationStore tokenRevocationStore;
+
     /**
      * Generates jwt token from an authenticable.
      * NOTE: if the jwt is encrypted, it encodes more information like roles and admin profilo (if the user is admin).
@@ -86,9 +90,31 @@ public class NimbusJwtTokenService implements JwtTokenService {
      */
     @Override
     public boolean validateToken(List<String> validIssuers, String jwtStr) {
+        if (jwtStr == null || jwtStr.isBlank())
+            return false;
         try {
-            return verifySignature(jwtStr) && validateIssuers(validIssuers, SignedJWT.parse(jwtStr));
+            SignedJWT signedJWT = SignedJWT.parse(jwtStr);
+            return verifySignature(jwtStr) && validateIssuers(validIssuers, signedJWT) && !isRevoked(signedJWT);
         } catch (ParseException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks the revocation denylist by jti. A token without a jti (e.g. legacy) is treated as
+     * not-revoked so validation does not NPE on it.
+     *
+     * @param signedJWT parsed token
+     * @return true if the token's jti is present in the revocation store
+     */
+    private boolean isRevoked(SignedJWT signedJWT) {
+        if (tokenRevocationStore == null)
+            return false;
+        try {
+            String jti = signedJWT.getJWTClaimsSet().getJWTID();
+            return jti != null && tokenRevocationStore.isRevoked(jti);
+        } catch (ParseException e) {
+            log.error(e.getMessage(), e);
             return false;
         }
     }
@@ -179,6 +205,34 @@ public class NimbusJwtTokenService implements JwtTokenService {
         return Collections.emptySet();
     }
 
+    /**
+     * Revokes a raw token by extracting its jti and expiration and storing them in the revocation
+     * denylist until natural expiry. Idempotent and safe: unparseable tokens or tokens with no jti
+     * are silently ignored so logout never fails.
+     *
+     * @param token raw (signed) JWT string
+     */
+    @Override
+    public void revokeToken(String token) {
+        if (token == null || token.isBlank() || tokenRevocationStore == null)
+            return;
+        try {
+            SignedJWT signedJWT = getSignedJWTToken(token);
+            if (signedJWT == null)
+                return;
+            JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
+            String jti = claimsSet.getJWTID();
+            if (jti == null || jti.isBlank())
+                return;
+            Date expiration = claimsSet.getExpirationTime();
+            long expMillis = expiration != null ? expiration.getTime() : Long.MAX_VALUE;
+            tokenRevocationStore.revoke(jti, expMillis);
+        } catch (Exception e) {
+            //logout must be idempotent/safe: never surface a parse error to the caller
+            log.warn("Could not revoke token: {}", e.getMessage());
+        }
+    }
+
     @Override
     public String getJWK() {
         JWK jwk = new RSAKey.Builder((RSAPublicKey) encryptionUtil.getServerKeyPair().getPublic())
@@ -221,6 +275,9 @@ public class NimbusJwtTokenService implements JwtTokenService {
         long jwtTokenDuration = jwtSecurityOptions.jwtTokenDurationMillis();
         long expirationTime = Instant.now().toEpochMilli() + jwtTokenDuration;
         builder.expirationTime(Date.from(Instant.ofEpochMilli(expirationTime)));
+        //unique token id (jti) so individual tokens can be revoked on logout, plus issued-at (iat)
+        builder.jwtID(UUID.randomUUID().toString());
+        builder.issueTime(new Date());
         //default token encryption is enabled, so this information is not visibile to the end user
         //if you want to remove jwt token encryption please consider this aspect
         Set<String> roleNames = new HashSet<>();
