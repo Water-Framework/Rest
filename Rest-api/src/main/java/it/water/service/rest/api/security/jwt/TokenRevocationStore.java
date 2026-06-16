@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it.water.service.rest.security.jwt;
+package it.water.service.rest.api.security.jwt;
 
 /**
  * @Author Aristide Cittadino

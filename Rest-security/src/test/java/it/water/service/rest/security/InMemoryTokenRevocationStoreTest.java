@@ -16,7 +16,7 @@
 package it.water.service.rest.security;
 
 import it.water.service.rest.security.jwt.InMemoryTokenRevocationStore;
-import it.water.service.rest.security.jwt.TokenRevocationStore;
+import it.water.service.rest.api.security.jwt.TokenRevocationStore;
 import org.junit.jupiter.api.*;
 
 /**

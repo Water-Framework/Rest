@@ -33,6 +33,7 @@ import it.water.core.model.exceptions.WaterRuntimeException;
 import it.water.core.security.model.principal.RolePrincipal;
 import it.water.service.rest.api.options.JwtSecurityOptions;
 import it.water.service.rest.api.security.jwt.JwtTokenService;
+import it.water.service.rest.api.security.jwt.TokenRevocationStore;
 import lombok.Setter;
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;

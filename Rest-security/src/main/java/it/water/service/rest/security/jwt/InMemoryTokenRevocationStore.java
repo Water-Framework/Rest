@@ -16,6 +16,7 @@
 package it.water.service.rest.security.jwt;
 
 import it.water.core.interceptors.annotations.FrameworkComponent;
+import it.water.service.rest.api.security.jwt.TokenRevocationStore;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
