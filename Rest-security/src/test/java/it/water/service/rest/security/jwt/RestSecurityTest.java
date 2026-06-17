@@ -118,8 +118,8 @@ class RestSecurityTest implements Service {
         String cookieValue = "Bearer 456";
         String token = genericJWTAuthFilter.getTokenFromRequest(authorization, null);
         Assertions.assertEquals("123", token);
-        token = genericJWTAuthFilter.getTokenFromRequest(null, cookieValue);
-        Assertions.assertEquals("456", token);
+        //#14/#27: cookie auth was removed — a cookie value alone no longer yields a token (header-only).
+        Assertions.assertThrows(UnauthorizedException.class, () -> genericJWTAuthFilter.getTokenFromRequest(null, cookieValue));
         Assertions.assertThrows(UnauthorizedException.class, () -> genericJWTAuthFilter.getTokenFromRequest(null, null));
         Set<TestRole> roles = new HashSet<>();
         roles.add(new TestRole("Role1"));

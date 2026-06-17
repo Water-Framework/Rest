@@ -29,5 +29,12 @@ public class JWTConstants {
     public static final String JWT_PROP_ENCRYPT_JWT_TOKEN = "water.rest.security.jwt.encrypt";
     public static final String JWT_PROP_JWS_URL = "water.rest.security.jwt.jws.url";
     public static final String JWT_PROP_JWT_DURATION_MILLIS = "water.rest.security.jwt.duration.millis";
+    //audience (aud) claim; when not configured the audience defaults to the token issuer (see JwtSecurityOptionsImpl)
+    public static final String JWT_PROP_AUDIENCE = "water.rest.security.jwt.audience";
+    //allowed clock skew (in seconds) applied to nbf validation; default 60s
+    public static final String JWT_PROP_CLOCK_SKEW_SECONDS = "water.rest.security.jwt.clock.skew.seconds";
+    public static final long JWT_DEFAULT_CLOCK_SKEW_SECONDS = 60L;
+    //canonical test-mode flag, shared across the framework (same key used by Authentication/User modules)
+    public static final String JWT_PROP_TEST_MODE = "water.testMode";
     public static final String JWT_COOKIE_NAME = "HIT-AUTH";
 }

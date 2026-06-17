@@ -67,6 +67,11 @@ public class NimbusJwtTokenService implements JwtTokenService {
     @Setter
     private TokenRevocationStore tokenRevocationStore;
 
+    //simple thread-safe cache of the JWKS public key, keyed by the JWKS URL it was loaded from.
+    //avoids hitting the JWKS endpoint on every validation. Cleared automatically if the URL changes.
+    private volatile String cachedJwksUrl;
+    private volatile RSAPublicKey cachedJwksPublicKey;
+
     /**
      * Generates jwt token from an authenticable.
      * NOTE: if the jwt is encrypted, it encodes more information like roles and admin profilo (if the user is admin).
@@ -95,7 +100,7 @@ public class NimbusJwtTokenService implements JwtTokenService {
             return false;
         try {
             SignedJWT signedJWT = SignedJWT.parse(jwtStr);
-            return verifySignature(jwtStr) && validateIssuers(validIssuers, signedJWT) && !isRevoked(signedJWT);
+            return verifySignature(jwtStr) && validateIssuers(validIssuers, signedJWT) && validateAudience(validIssuers, signedJWT) && !isRevoked(signedJWT);
         } catch (ParseException e) {
             return false;
         }
@@ -134,14 +139,75 @@ public class NimbusJwtTokenService implements JwtTokenService {
             }
             SignedJWT signedJWT = getSignedJWTToken(jwtStr);
             if (signedJWT != null) {
+                //algorithm pinning: only RS256 is accepted on the verify path. This rejects "alg"
+                //downgrade/confusion attacks (e.g. forged "none" or HS256 headers) before any
+                //cryptographic verification is attempted.
+                if (!JWSAlgorithm.RS256.equals(signedJWT.getHeader().getAlgorithm())) {
+                    log.warn("Rejecting JWT: unexpected signing algorithm {}", signedJWT.getHeader().getAlgorithm());
+                    return false;
+                }
                 JWSVerifier verifier = new RSASSAVerifier(publicKey);
-                verified = signedJWT.verify(verifier) && validateExpiration(signedJWT);
+                verified = signedJWT.verify(verifier) && validateExpiration(signedJWT) && validateNotBefore(signedJWT);
                 return verified;
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
         return false;
+    }
+
+    /**
+     * Validates the not-before (nbf) claim: a token whose nbf is in the future (beyond the
+     * configured clock-skew leeway) is rejected. A token without nbf (e.g. legacy) is accepted
+     * so validation never NPEs and stays backward compatible.
+     *
+     * @param jwtToken parsed token
+     * @return true if the token is not used before its nbf time
+     */
+    private boolean validateNotBefore(SignedJWT jwtToken) {
+        try {
+            Date notBefore = jwtToken.getJWTClaimsSet().getNotBeforeTime();
+            if (notBefore == null)
+                return true; //legacy token without nbf: do not reject on nbf alone
+            long skewMillis = jwtSecurityOptions.jwtClockSkewSeconds() * 1000L;
+            long nowWithSkew = Instant.now().toEpochMilli() + skewMillis;
+            return notBefore.getTime() <= nowWithSkew;
+        } catch (ParseException e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    /**
+     * Validates the audience (aud) claim. Every token issued by this service now carries an aud
+     * (configured audience, or the issuer as default). On validation:
+     * <ul>
+     *     <li>if a token carries no aud (legacy), it is accepted (do not reject on aud alone);</li>
+     *     <li>if an explicit audience is configured, the token's aud must contain it;</li>
+     *     <li>otherwise (default audience = issuer) the token's aud must intersect the valid issuers,
+     *     which is symmetric with how the audience is generated.</li>
+     * </ul>
+     *
+     * @param validIssuers list of valid issuers (used as the default expected audience set)
+     * @param jwtToken     parsed token
+     * @return true if the audience is acceptable
+     */
+    private boolean validateAudience(List<String> validIssuers, SignedJWT jwtToken) {
+        try {
+            List<String> audience = jwtToken.getJWTClaimsSet().getAudience();
+            if (audience == null || audience.isEmpty()) {
+                //legacy token without aud: accept so pre-existing tokens keep working
+                return true;
+            }
+            String configured = jwtSecurityOptions.jwtAudience();
+            if (configured != null && !configured.isBlank())
+                return audience.contains(configured);
+            //default audience equals the issuer: accept when aud intersects the valid issuers
+            return validIssuers != null && !Collections.disjoint(audience, validIssuers);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
     }
 
     /**
@@ -273,12 +339,16 @@ public class NimbusJwtTokenService implements JwtTokenService {
      */
     private JWTClaimsSet generateClaims(Authenticable authenticable) {
         JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder().subject(authenticable.getScreenName());
+        long nowMillis = Instant.now().toEpochMilli();
         long jwtTokenDuration = jwtSecurityOptions.jwtTokenDurationMillis();
-        long expirationTime = Instant.now().toEpochMilli() + jwtTokenDuration;
+        long expirationTime = nowMillis + jwtTokenDuration;
+        Date issueDate = new Date(nowMillis);
         builder.expirationTime(Date.from(Instant.ofEpochMilli(expirationTime)));
         //unique token id (jti) so individual tokens can be revoked on logout, plus issued-at (iat)
         builder.jwtID(UUID.randomUUID().toString());
-        builder.issueTime(new Date());
+        builder.issueTime(issueDate);
+        //not-before (nbf) equals issue time: the token is not valid before it was minted
+        builder.notBeforeTime(issueDate);
         //default token encryption is enabled, so this information is not visibile to the end user
         //if you want to remove jwt token encryption please consider this aspect
         Set<String> roleNames = new HashSet<>();
@@ -287,7 +357,24 @@ public class NimbusJwtTokenService implements JwtTokenService {
                 .claim(JWTConstants.JWT_CLAIM_IS_ADMIN, authenticable.isAdmin())
                 .claim(JWTConstants.JWT_CLAIM_LOGGED_ENTITY_ID, authenticable.getLoggedEntityId());
         builder.issuer(authenticable.getIssuer());
+        //audience (aud): use the configured audience when present, otherwise default to the issuer so
+        //the claim is never empty and generation/validation stay symmetric.
+        builder.audience(resolveExpectedAudience(authenticable.getIssuer()));
         return builder.build();
+    }
+
+    /**
+     * Resolves the audience to embed in (and to expect from) a token. Uses the configured
+     * audience (water.rest.security.jwt.audience) when set; otherwise defaults to the issuer.
+     *
+     * @param issuer issuer of the token (fallback audience)
+     * @return the expected audience value, never null/blank as long as issuer is non-blank
+     */
+    private String resolveExpectedAudience(String issuer) {
+        String configured = jwtSecurityOptions.jwtAudience();
+        if (configured != null && !configured.isBlank())
+            return configured;
+        return issuer;
     }
 
 
@@ -317,20 +404,48 @@ public class NimbusJwtTokenService implements JwtTokenService {
      * @return
      */
     private RSAPublicKey retrievePublicKeyFromJWSUrl(String keyId) {
-        //TODO make some cache on the public key
-        //TODO cache token validation to improve speed on already validated tokens
+        String jwsUrl = jwtSecurityOptions.jwsURL();
+        //enforce https for the JWKS endpoint so the public key cannot be swapped by a network MITM.
+        //plaintext http is only tolerated in test mode (spring/localhost test runners).
+        enforceHttpsJwksUrl(jwsUrl);
+        //serve from cache when the URL is unchanged: avoids hitting the JWKS endpoint on every validation
+        RSAPublicKey cached = cachedJwksPublicKey;
+        if (cached != null && jwsUrl != null && jwsUrl.equals(cachedJwksUrl)) {
+            return cached;
+        }
         try {
-            URL jwksURL = new URL(jwtSecurityOptions.jwsURL());
+            URL jwksURL = new URL(jwsUrl);
             JWKSet jwkSet = JWKSet.load(jwksURL);
             // Find the JWK that matches the 'kid' from the JWS token's header
             JWK matchingKey = jwkSet.getKeyByKeyId(keyId);
             if (matchingKey != null) {
-                return matchingKey.toRSAKey().toRSAPublicKey();
+                RSAPublicKey publicKey = matchingKey.toRSAKey().toRSAPublicKey();
+                //publish the URL last so a reader never sees a key paired with the wrong URL
+                cachedJwksPublicKey = publicKey;
+                cachedJwksUrl = jwsUrl;
+                return publicKey;
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
         return null;
+    }
+
+    /**
+     * Rejects a plaintext-http JWKS URL with a clear exception, unless the framework is running in
+     * test mode (water.testMode=true), where plaintext http localhost endpoints are tolerated.
+     * Only the network plaintext scheme {@code http://} is refused (MITM-swappable key, see #16);
+     * non-network local schemes ({@code file:}, {@code classpath:}) and {@code https://} are allowed.
+     *
+     * @param jwsUrl configured JWKS URL
+     */
+    private void enforceHttpsJwksUrl(String jwsUrl) {
+        if (jwsUrl == null || jwsUrl.isBlank())
+            return;
+        boolean isPlaintextHttp = jwsUrl.toLowerCase(Locale.ROOT).startsWith("http://");
+        if (isPlaintextHttp && !jwtSecurityOptions.testMode()) {
+            throw new WaterRuntimeException("JWKS URL must not use plaintext http; refusing to fetch the JWT public key over a MITM-swappable channel: " + jwsUrl);
+        }
     }
 
     /**

@@ -28,4 +28,20 @@ public interface JwtSecurityOptions extends Service {
     boolean encryptJWTToken();
     String jwsURL();
     long jwtTokenDurationMillis();
+
+    /**
+     * @return the configured JWT audience (aud claim). May be empty/blank when not configured,
+     * in which case callers should default the audience to the token issuer.
+     */
+    String jwtAudience();
+
+    /**
+     * @return allowed clock skew, in seconds, applied to not-before (nbf) validation. Default 60s.
+     */
+    long jwtClockSkewSeconds();
+
+    /**
+     * @return true when the framework is running in test mode (water.testMode=true).
+     */
+    boolean testMode();
 }

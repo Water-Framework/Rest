@@ -44,6 +44,7 @@ import it.water.service.rest.AbstractRestApiManager;
 import it.water.service.rest.GenericExceptionMapperProvider;
 import it.water.service.rest.api.WaterJacksonMapper;
 import it.water.service.rest.api.options.RestOptions;
+import it.water.service.rest.manager.cxf.security.filters.CxfSecurityHeadersFilter;
 import it.water.service.rest.manager.cxf.security.filters.jwt.CxfJwtAuthenticationFilter;
 import lombok.Setter;
 
@@ -90,13 +91,21 @@ public class CxfRestApiManager extends AbstractRestApiManager implements RestApi
         log.info("Registering base REST resources under : {}", restRootContext);
         // configuring CXF Server with interceptors,features and providers
         List<Feature> features = new ArrayList<>();
-        features.add(addSwaggerFeature());
+        //#36: Swagger feature + UI are registered only when explicitly enabled (secure-by-default).
+        if (this.restOptions != null && this.restOptions.swaggerEnabled()) {
+            log.info("Swagger feature enabled via {}", "water.rest.swagger.enabled");
+            features.add(addSwaggerFeature());
+        } else {
+            log.info("Swagger feature disabled (secure-by-default). Set water.rest.swagger.enabled=true to expose it.");
+        }
         //configuring providers
         List<Object> providers = new ArrayList<>();
         JacksonJsonProvider jacksonJsonProvider = getJacksonJsonProvider();
         if (jacksonJsonProvider != null)
             providers.add(jacksonJsonProvider);
         providers.add(getGenericExceptionMapper());
+        //#26: enforce baseline HTTP security headers on every REST response
+        providers.add(new CxfSecurityHeadersFilter());
         //all filters registered as @FrameworkComponent will be added
         List<ContainerRequestFilter> filters = getContainerRequestFilters();
         providers.addAll(filters);

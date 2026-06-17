@@ -96,4 +96,40 @@ public class JwtSecurityOptionsImpl implements JwtSecurityOptions {
         log.debug(DEBUG_MSG, "jwt Validation Enabled", validationEnabled);
         return validationEnabled;
     }
+
+    /**
+     * Default empty: when not configured the audience defaults to the token issuer.
+     *
+     * @return
+     */
+    @Override
+    public String jwtAudience() {
+        String value = applicationProperties.getPropertyOrDefault(JWTConstants.JWT_PROP_AUDIENCE, "");
+        log.debug(DEBUG_MSG, "jwtAudience", value);
+        return value;
+    }
+
+    /**
+     * Default 60 seconds.
+     *
+     * @return
+     */
+    @Override
+    public long jwtClockSkewSeconds() {
+        long value = applicationProperties.getPropertyOrDefault(JWTConstants.JWT_PROP_CLOCK_SKEW_SECONDS, JWTConstants.JWT_DEFAULT_CLOCK_SKEW_SECONDS);
+        log.debug(DEBUG_MSG, "jwtClockSkewSeconds", value);
+        return value;
+    }
+
+    /**
+     * Default false.
+     *
+     * @return
+     */
+    @Override
+    public boolean testMode() {
+        boolean value = applicationProperties.getPropertyOrDefault(JWTConstants.JWT_PROP_TEST_MODE, false);
+        log.debug(DEBUG_MSG, "testMode", value);
+        return value;
+    }
 }

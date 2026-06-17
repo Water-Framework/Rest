@@ -94,4 +94,51 @@ class RestServiceTest implements Service {
         Assertions.assertEquals(500, restOptions.uploadMaxFileSize());
     }
 
+    // -------------------------------------------------------------------
+    // #36 — swaggerEnabled secure-by-default
+    // -------------------------------------------------------------------
+
+    @Test
+    void testSwaggerEnabled_propertyAbsent_returnsFalse() {
+        // When the property is not set, swaggerEnabled() must default to false (secure-by-default).
+        Properties empty = new Properties();
+        applicationProperties.loadProperties(empty);
+        Assertions.assertFalse(restOptions.swaggerEnabled(),
+                "#36: swaggerEnabled must default to false when the property is absent");
+    }
+
+    @Test
+    void testSwaggerEnabled_propertySetToTrue_returnsTrue() {
+        // Explicitly opt in to Swagger exposure.
+        Properties props = new Properties();
+        props.put(RestConstants.REST_PROP_SWAGGER_ENABLED, "true");
+        applicationProperties.loadProperties(props);
+        try {
+            Assertions.assertTrue(restOptions.swaggerEnabled(),
+                    "#36: swaggerEnabled must return true when water.rest.swagger.enabled=true");
+        } finally {
+            // Remove the Swagger property so subsequent tests are not affected.
+            // loadProperties with an empty Properties does nothing — must unload explicitly.
+            Properties toRemove = new Properties();
+            toRemove.put(RestConstants.REST_PROP_SWAGGER_ENABLED, "true");
+            applicationProperties.unloadProperties(toRemove);
+        }
+    }
+
+    @Test
+    void testSwaggerEnabled_propertySetToFalse_returnsFalse() {
+        // Explicitly disable Swagger — must also return false.
+        Properties props = new Properties();
+        props.put(RestConstants.REST_PROP_SWAGGER_ENABLED, "false");
+        applicationProperties.loadProperties(props);
+        try {
+            Assertions.assertFalse(restOptions.swaggerEnabled(),
+                    "#36: swaggerEnabled must return false when water.rest.swagger.enabled=false");
+        } finally {
+            Properties toRemove = new Properties();
+            toRemove.put(RestConstants.REST_PROP_SWAGGER_ENABLED, "false");
+            applicationProperties.unloadProperties(toRemove);
+        }
+    }
+
 }

@@ -39,6 +39,7 @@ public abstract class BaseEntityRestApi<T extends BaseEntity> implements Service
     private Logger log = LoggerFactory.getLogger(BaseEntityRestApi.class.getName());
 
     public static final int HYPERIOT_DEFAULT_PAGINATION_DELTA = 20;
+    public static final int MAX_PAGE_SIZE = 200;
 
     /**
      * Response and any exceptions for save operation
@@ -93,6 +94,7 @@ public abstract class BaseEntityRestApi<T extends BaseEntity> implements Service
     public PaginableResult<T> findAll(Integer delta, Integer page, Query filter, QueryOrder order) {
         log.debug("Invoking Find All entity from rest service for {}", this.getEntityService().getEntityType().getSimpleName());
         if (delta == null || delta <= 0) delta = HYPERIOT_DEFAULT_PAGINATION_DELTA;
+        delta = Math.min(delta, MAX_PAGE_SIZE);
         if (page == null || page <= 0) page = 1;
         return this.getEntityService().findAll(filter, delta, page, order);
     }

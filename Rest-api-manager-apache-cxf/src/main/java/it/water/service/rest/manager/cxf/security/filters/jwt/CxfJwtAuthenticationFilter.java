@@ -26,7 +26,6 @@ import it.water.service.rest.api.options.RestOptions;
 import it.water.service.rest.api.security.LoggedIn;
 import it.water.service.rest.api.security.jwt.JwtTokenService;
 import it.water.service.rest.security.jwt.GenericJWTAuthFilter;
-import it.water.service.rest.security.jwt.JWTConstants;
 import it.water.service.rest.security.jwt.JwtSecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,13 +76,12 @@ public class CxfJwtAuthenticationFilter extends GenericJWTAuthFilter implements 
         try {
             //if token is not valid it will raise exception
             log.debug("In JwtAuthenticationFilter on class: {}.{}", info.getResourceClass(), info.getResourceMethod());
+            //#14/#27: JWT is accepted only from the Authorization header (cookie auth removed to close the CSRF surface).
             String authorizationHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
-            Cookie c = requestContext.getCookies().get(JWTConstants.JWT_COOKIE_NAME);
-            String cookieVal = c != null ? c.getValue() : null;
             if (info.getResourceMethod() != null) {
                 LoggedIn annotation = info.getResourceMethod().getAnnotation(LoggedIn.class);
-                validateToken(jwtTokenService, annotation, authorizationHeader, cookieVal);
-                createSecurityContext(authorizationHeader, cookieVal);
+                validateToken(jwtTokenService, annotation, authorizationHeader, null);
+                createSecurityContext(authorizationHeader);
             }
 
         } catch (Exception e) {
@@ -103,10 +101,9 @@ public class CxfJwtAuthenticationFilter extends GenericJWTAuthFilter implements 
      * Injects Security context inside CXF Context
      *
      * @param authorizationHeader
-     * @param cookieValue
      */
-    private void createSecurityContext(String authorizationHeader, String cookieValue) {
-        String encodedToken = this.getTokenFromRequest(authorizationHeader, cookieValue);
+    private void createSecurityContext(String authorizationHeader) {
+        String encodedToken = this.getTokenFromRequest(authorizationHeader, null);
         SecurityContext securityContext = new JwtSecurityContext(jwtTokenService.getPrincipals(encodedToken));
         Runtime runtime = this.componentRegistry.findComponent(Runtime.class, null);
         runtime.fillSecurityContext(securityContext);

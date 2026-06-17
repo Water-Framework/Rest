@@ -22,8 +22,6 @@ import it.water.service.rest.api.options.RestOptions;
 import it.water.service.rest.api.security.LoggedIn;
 import it.water.service.rest.api.security.jwt.JwtTokenService;
 import it.water.service.rest.security.jwt.GenericJWTAuthFilter;
-import it.water.service.rest.security.jwt.JWTConstants;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -33,8 +31,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Optional;
 
 /**
  * @Author Aristide Cittadino
@@ -62,19 +58,14 @@ public class SpringJwtAuthenticationFilter extends GenericJWTAuthFilter implemen
             Method method = handlerMethod.getMethod();
             LoggedIn annotation = (LoggedIn) this.getAnnotationFromHierarchy(LoggedIn.class, method);
             if (annotation != null) {
+                //#14/#27: JWT is accepted only from the Authorization header (cookie auth removed to close the CSRF surface).
                 String authorization = request.getHeader("Authorization");
-                String cookie = null;
-                if (request.getCookies() != null) {
-                    Optional<Cookie> cookies = Arrays.stream(request.getCookies()).filter(currCookie -> currCookie.getName().equalsIgnoreCase(JWTConstants.JWT_COOKIE_NAME)).findAny();
-                    if (cookies.isPresent())
-                        cookie = cookies.get().getName();
-                }
                 JwtTokenService jwtTokenService = this.componentRegistry.findComponent(JwtTokenService.class, null);
                 //raise exception if not valid token
-                this.validateToken(jwtTokenService, annotation, authorization, cookie);
+                this.validateToken(jwtTokenService, annotation, authorization, null);
                 //Fill current thread with security context
                 Runtime runtime = this.componentRegistry.findComponent(Runtime.class, null);
-                runtime.fillSecurityContext(new SpringSecurityContext(jwtTokenService.getPrincipals(getTokenFromRequest(authorization, cookie))));
+                runtime.fillSecurityContext(new SpringSecurityContext(jwtTokenService.getPrincipals(getTokenFromRequest(authorization, null))));
             }
         }
         return true;
@@ -82,7 +73,14 @@ public class SpringJwtAuthenticationFilter extends GenericJWTAuthFilter implemen
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        //do nothing
+        //#26: enforce baseline HTTP security headers on every REST response.
+        //X-Content-Type-Options and Cache-Control are always set (API/JSON responses);
+        //Strict-Transport-Security only over TLS/HTTPS, never on plain http.
+        response.setHeader("X-Content-Type-Options", "nosniff");
+        response.setHeader("Cache-Control", "no-store");
+        if (request.isSecure()) {
+            response.setHeader("Strict-Transport-Security", "max-age=31536000");
+        }
     }
 
     @Override

@@ -89,4 +89,12 @@ public class RestOptionsImpl implements RestOptions {
     public CorsOptions corsOptions() {
         return getCorsOptions();
     }
+
+    @Override
+    public boolean swaggerEnabled() {
+        //#36: secure-by-default, Swagger feature/UI is exposed only when explicitly enabled.
+        if (applicationProperties.getProperty(RestConstants.REST_PROP_SWAGGER_ENABLED) != null)
+            return Boolean.parseBoolean(String.valueOf(applicationProperties.getProperty(RestConstants.REST_PROP_SWAGGER_ENABLED)));
+        return false;
+    }
 }

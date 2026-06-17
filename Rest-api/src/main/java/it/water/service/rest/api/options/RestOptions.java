@@ -35,4 +35,11 @@ public interface RestOptions extends Service {
     JwtSecurityOptions securityOptions();
 
     CorsOptions corsOptions();
+
+    /**
+     * @return true when the Swagger/OpenAPI feature and its UI must be exposed.
+     * Secure-by-default: returns false unless explicitly enabled via the
+     * water.rest.swagger.enabled property.
+     */
+    boolean swaggerEnabled();
 }

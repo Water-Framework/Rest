@@ -41,6 +41,8 @@ import java.util.Arrays;
 @Provider
 public class GenericExceptionMapperProvider implements ExceptionMapper<Throwable> {
     private static Logger log = LoggerFactory.getLogger(GenericExceptionMapperProvider.class.getName());
+    private static final String GENERIC_INTERNAL_ERROR_TYPE = "InternalServerError";
+    private static final String GENERIC_INTERNAL_ERROR_MESSAGE = "Internal server error";
 
     public static class ErrorMessage {
         int status;
@@ -104,22 +106,33 @@ public class GenericExceptionMapperProvider implements ExceptionMapper<Throwable
             response = BaseError.generateError(e, null,
                     Response.Status.UNAUTHORIZED.getStatusCode());
         } catch (RuntimeException e) {
-            log.error(e.getMessage(), e);
-            BasicErrorMessage errorMessage = new BasicErrorMessage(e.getMessage());
-            response = BaseError.generateError(e,
-                    Arrays.asList(errorMessage), Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+            response = sanitizedInternalServerError(e);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            response = BaseError.generateError(e, null,
-                    Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+            response = sanitizedInternalServerError(e);
         }
         return response;
     }
 
+    /**
+     * Builds a sanitized 500 response. Unmapped/internal errors must NOT leak the fully-qualified
+     * exception class name nor the raw {@code getMessage()} to the client, as both can disclose
+     * internal implementation details. The real exception class and message are logged server-side
+     * for operational debugging, while the client receives a generic, non-identifying payload.
+     *
+     * @param t the internal throwable that was not mapped to a meaningful client error
+     * @return a BaseError carrying only a generic message and a non-identifying type
+     */
+    private BaseError sanitizedInternalServerError(Throwable t) {
+        log.error("Internal server error [{}]: {}", t.getClass().getName(), t.getMessage(), t);
+        BaseError response = new BaseError();
+        response.setStatusCode(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        response.setType(GENERIC_INTERNAL_ERROR_TYPE);
+        response.setErrorMessages(Arrays.asList(new BasicErrorMessage(GENERIC_INTERNAL_ERROR_MESSAGE)));
+        return response;
+    }
+
     private Response handleError(Error e) {
-        log.error(e.getMessage(), e);
-        BaseError response = BaseError.generateError(e, null,
-                Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        BaseError response = sanitizedInternalServerError(e);
         return Response.serverError().entity(response).build();
     }
 }

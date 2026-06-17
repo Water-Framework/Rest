@@ -31,4 +31,7 @@ public class RestConstants {
     public static final String REST_PROP_CORS_HEADERS = "water.rest.cors.headers";
     public static final String REST_PROP_CORS_CREDENTIALS = "water.rest.cors.credentials";
     public static final String REST_PROP_CORS_MAX_AGE = "water.rest.cors.maxAge";
+
+    //#36: Swagger is disabled by default (secure-by-default), enable explicitly with this property.
+    public static final String REST_PROP_SWAGGER_ENABLED = "water.rest.swagger.enabled";
 }

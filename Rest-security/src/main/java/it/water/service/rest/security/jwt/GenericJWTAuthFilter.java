@@ -35,7 +35,8 @@ public class GenericJWTAuthFilter {
      * @param jwtTokenService      jwt token service
      * @param annotation           annotation on method
      * @param authorizationHeader  Authorization Header content
-     * @param authenticationCookie Authentication Header content
+     * @param authenticationCookie Deprecated: cookie-based token extraction has been removed to mitigate CSRF.
+     *                             The parameter is retained for source compatibility but is ignored.
      */
     public void validateToken(JwtTokenService jwtTokenService, LoggedIn annotation, String authorizationHeader, String authenticationCookie) {
         if (annotation != null) {
@@ -47,9 +48,18 @@ public class GenericJWTAuthFilter {
         }
     }
 
+    /**
+     * Extracts the JWT token strictly from the Authorization header.
+     * Cookie-based extraction has been intentionally removed to eliminate the CSRF attack surface:
+     * tokens carried in cookies are sent automatically by browsers and can be exploited cross-site.
+     * The {@code cookieValue} parameter is kept for source compatibility but is deliberately ignored.
+     *
+     * @param authorization the Authorization header value (expected "Bearer &lt;token&gt;")
+     * @param cookieValue   ignored; retained only for backward source compatibility
+     * @return the encoded JWT token extracted from the Authorization header
+     * @throws UnauthorizedException if no valid Bearer Authorization header is present
+     */
     public String getTokenFromRequest(String authorization, String cookieValue) {
-        if ((authorization == null || authorization.isBlank()) && cookieValue != null && !cookieValue.isBlank())
-            authorization = cookieValue;
         String[] parts = authorization == null ? null : authorization.split(" ");
         if (parts == null || !EXPECTED_AUTH_SCHEME.equals(parts[0]) || parts.length != 2) {
             throw new UnauthorizedException(EXPECTED_AUTH_SCHEME + " is required");
