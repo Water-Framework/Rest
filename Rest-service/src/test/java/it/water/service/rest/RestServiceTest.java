@@ -95,6 +95,26 @@ class RestServiceTest implements Service {
     }
 
     // -------------------------------------------------------------------
+    // RestOptionsImpl#restRootContext — configured-value branch
+    // (only the default/empty branch was previously exercised by testRestOptions)
+    // -------------------------------------------------------------------
+
+    @Test
+    void testRestRootContextPropertyConfiguredReturnsConfiguredValue() {
+        Properties props = new Properties();
+        props.put(RestConstants.REST_PROP_ROOT_CONTEXT, "/custom-root");
+        applicationProperties.loadProperties(props);
+        try {
+            Assertions.assertEquals("/custom-root", restOptions.restRootContext(),
+                    "restRootContext() must return the configured value verbatim");
+        } finally {
+            Properties cleanup = new Properties();
+            cleanup.put(RestConstants.REST_PROP_ROOT_CONTEXT, "/custom-root");
+            applicationProperties.unloadProperties(cleanup);
+        }
+    }
+
+    // -------------------------------------------------------------------
     // #36 — swaggerEnabled secure-by-default
     // -------------------------------------------------------------------
 

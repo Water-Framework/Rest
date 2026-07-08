@@ -106,7 +106,8 @@ public class WaterRestSpringConfiguration implements WebMvcConfigurer {
                 .filter(header -> !header.isEmpty())
                 .forEach(config::addAllowedHeader);
         //H10: never allow the insecure "wildcard origin + credentials" combination
-        boolean wildcardOrigin = config.getAllowedOrigins() != null  && config.getAllowedOrigins().contains(CorsConfiguration.ALL);
+        List<String> allowedOrigins = config.getAllowedOrigins();
+        boolean wildcardOrigin = allowedOrigins != null && allowedOrigins.contains(CorsConfiguration.ALL);
         config.setAllowCredentials(corsCredentials && !wildcardOrigin);
         config.setMaxAge(corsMaxAge);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

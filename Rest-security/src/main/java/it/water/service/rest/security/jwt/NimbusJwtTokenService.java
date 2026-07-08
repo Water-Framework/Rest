@@ -68,9 +68,20 @@ public class NimbusJwtTokenService implements JwtTokenService {
     private TokenRevocationStore tokenRevocationStore;
 
     //simple thread-safe cache of the JWKS public key, keyed by the JWKS URL it was loaded from.
-    //avoids hitting the JWKS endpoint on every validation. Cleared automatically if the URL changes.
-    private volatile String cachedJwksUrl;
-    private volatile RSAPublicKey cachedJwksPublicKey;
+    //avoids hitting the JWKS endpoint on every validation. Refreshed automatically if the URL changes.
+    //url and key are published together as a single immutable holder, so a reader can never see a key
+    //paired with the wrong URL.
+    private final java.util.concurrent.atomic.AtomicReference<JwksCacheEntry> jwksCache = new java.util.concurrent.atomic.AtomicReference<>();
+
+    private static final class JwksCacheEntry {
+        private final String url;
+        private final RSAPublicKey key;
+
+        JwksCacheEntry(String url, RSAPublicKey key) {
+            this.url = url;
+            this.key = key;
+        }
+    }
 
     /**
      * Generates jwt token from an authenticable.
@@ -409,9 +420,9 @@ public class NimbusJwtTokenService implements JwtTokenService {
         //plaintext http is only tolerated in test mode (spring/localhost test runners).
         enforceHttpsJwksUrl(jwsUrl);
         //serve from cache when the URL is unchanged: avoids hitting the JWKS endpoint on every validation
-        RSAPublicKey cached = cachedJwksPublicKey;
-        if (cached != null && jwsUrl != null && jwsUrl.equals(cachedJwksUrl)) {
-            return cached;
+        JwksCacheEntry cached = jwksCache.get();
+        if (cached != null && jwsUrl != null && jwsUrl.equals(cached.url)) {
+            return cached.key;
         }
         try {
             URL jwksURL = new URL(jwsUrl);
@@ -420,9 +431,8 @@ public class NimbusJwtTokenService implements JwtTokenService {
             JWK matchingKey = jwkSet.getKeyByKeyId(keyId);
             if (matchingKey != null) {
                 RSAPublicKey publicKey = matchingKey.toRSAKey().toRSAPublicKey();
-                //publish the URL last so a reader never sees a key paired with the wrong URL
-                cachedJwksPublicKey = publicKey;
-                cachedJwksUrl = jwsUrl;
+                //publish url and key together as one immutable holder
+                jwksCache.set(new JwksCacheEntry(jwsUrl, publicKey));
                 return publicKey;
             }
         } catch (Exception e) {

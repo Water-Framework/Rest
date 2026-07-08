@@ -105,8 +105,6 @@ public class GenericExceptionMapperProvider implements ExceptionMapper<Throwable
             log.error(e.getMessage(), e);
             response = BaseError.generateError(e, null,
                     Response.Status.UNAUTHORIZED.getStatusCode());
-        } catch (RuntimeException e) {
-            response = sanitizedInternalServerError(e);
         } catch (Exception e) {
             response = sanitizedInternalServerError(e);
         }
