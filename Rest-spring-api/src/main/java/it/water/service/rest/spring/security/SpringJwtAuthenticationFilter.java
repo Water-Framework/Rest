@@ -73,9 +73,9 @@ public class SpringJwtAuthenticationFilter extends GenericJWTAuthFilter implemen
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        //#26: enforce baseline HTTP security headers on every REST response.
-        //X-Content-Type-Options and Cache-Control are always set (API/JSON responses);
-        //Strict-Transport-Security only over TLS/HTTPS, never on plain http.
+        // #26 enforces baseline HTTP security headers on every REST response.
+        // The nosniff and no-store headers are always applied to API and JSON responses,
+        // while HSTS is applied only over a TLS connection and never on plain HTTP.
         response.setHeader("X-Content-Type-Options", "nosniff");
         response.setHeader("Cache-Control", "no-store");
         if (request.isSecure()) {

@@ -26,7 +26,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 /**
@@ -72,15 +71,15 @@ class JwtSecurityOptionsImplTest {
 
     @Test
     void gettersReturnOverriddenValuesWhenPropertyConfigured() {
-        when(applicationProperties.getPropertyOrDefault(eq(JWTConstants.JWT_PROP_VALIDATE_BY_JWS), eq(false))).thenReturn(true);
-        when(applicationProperties.getPropertyOrDefault(eq(JWTConstants.JWT_PROP_VALIDATE_BY_JWS_KEY_ID), eq(""))).thenReturn("myKeyId");
-        when(applicationProperties.getPropertyOrDefault(eq(JWTConstants.JWT_PROP_ENCRYPT_JWT_TOKEN), eq(false))).thenReturn(true);
-        when(applicationProperties.getPropertyOrDefault(eq(JWTConstants.JWT_PROP_JWS_URL), eq(""))).thenReturn("https://example.com/jwks.json");
-        when(applicationProperties.getPropertyOrDefault(eq(JWTConstants.JWT_PROP_JWT_DURATION_MILLIS), eq(3600000L))).thenReturn(7200000L);
-        when(applicationProperties.getPropertyOrDefault(eq(JWTConstants.JWT_PROP_VALIDATION_ENABLED), eq(true))).thenReturn(false);
-        when(applicationProperties.getPropertyOrDefault(eq(JWTConstants.JWT_PROP_AUDIENCE), eq(""))).thenReturn("my-audience");
-        when(applicationProperties.getPropertyOrDefault(eq(JWTConstants.JWT_PROP_CLOCK_SKEW_SECONDS), eq(JWTConstants.JWT_DEFAULT_CLOCK_SKEW_SECONDS))).thenReturn(120L);
-        when(applicationProperties.getPropertyOrDefault(eq(JWTConstants.JWT_PROP_TEST_MODE), eq(false))).thenReturn(true);
+        when(applicationProperties.getPropertyOrDefault(JWTConstants.JWT_PROP_VALIDATE_BY_JWS, false)).thenReturn(true);
+        when(applicationProperties.getPropertyOrDefault(JWTConstants.JWT_PROP_VALIDATE_BY_JWS_KEY_ID, "")).thenReturn("myKeyId");
+        when(applicationProperties.getPropertyOrDefault(JWTConstants.JWT_PROP_ENCRYPT_JWT_TOKEN, false)).thenReturn(true);
+        when(applicationProperties.getPropertyOrDefault(JWTConstants.JWT_PROP_JWS_URL, "")).thenReturn("https://example.com/jwks.json");
+        when(applicationProperties.getPropertyOrDefault(JWTConstants.JWT_PROP_JWT_DURATION_MILLIS, 3600000L)).thenReturn(7200000L);
+        when(applicationProperties.getPropertyOrDefault(JWTConstants.JWT_PROP_VALIDATION_ENABLED, true)).thenReturn(false);
+        when(applicationProperties.getPropertyOrDefault(JWTConstants.JWT_PROP_AUDIENCE, "")).thenReturn("my-audience");
+        when(applicationProperties.getPropertyOrDefault(JWTConstants.JWT_PROP_CLOCK_SKEW_SECONDS, JWTConstants.JWT_DEFAULT_CLOCK_SKEW_SECONDS)).thenReturn(120L);
+        when(applicationProperties.getPropertyOrDefault(JWTConstants.JWT_PROP_TEST_MODE, false)).thenReturn(true);
 
         Assertions.assertTrue(jwtSecurityOptions.validateJwtWithJwsUrl());
         Assertions.assertEquals("myKeyId", jwtSecurityOptions.jwtKeyId());
