@@ -17,10 +17,12 @@ package it.water.service.rest.security.jwt;
 
 import it.water.core.api.service.Service;
 import it.water.core.permission.exceptions.UnauthorizedException;
+import it.water.core.security.model.principal.UserPrincipal;
 import it.water.core.testing.utils.bundle.TestRuntimeInitializer;
 import it.water.core.testing.utils.junit.WaterTestExtension;
 import it.water.service.rest.api.security.LoggedIn;
 import it.water.service.rest.api.security.jwt.JwtTokenService;
+import com.nimbusds.jwt.SignedJWT;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -32,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.security.Principal;
+import java.text.ParseException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -151,6 +154,109 @@ class RestSecurityTest implements Service {
         //Checking User has been mapped as principal
         Assertions.assertEquals(0, principalSet.size());
         Assertions.assertEquals(0, getJwtTokenService().getPrincipals("invalidToken").size());
+    }
+
+    /**
+     * Multitenancy Tassello 1 (see multitenancy-analysis-proposal.md, section 9) — round-trip WITH
+     * tenant: an {@link it.water.core.api.security.Authenticable} whose {@code getActiveCompanyId()}
+     * returns a non-null value must produce a token that carries that value in the
+     * {@code companyId} claim, and {@code getPrincipals(token)} must map it back onto
+     * {@link UserPrincipal#getCompanyId()}.
+     */
+    @Test
+    void testReleaseJWTWithActiveCompany_roundTripCarriesCompanyId() {
+        final Long ACTIVE_COMPANY_ID = 42L;
+        TestUser u = new TestUser("tenantUser", Collections.emptySet(), ACTIVE_COMPANY_ID);
+        String token = getJwtTokenService().generateJwtToken(u);
+        Assertions.assertNotNull(token);
+        //validating generated token
+        Assertions.assertTrue(getJwtTokenService().validateToken(Collections.singletonList(TestUser.class.getName()), token));
+        Set<Principal> principalSet = getJwtTokenService().getPrincipals(token);
+        Assertions.assertEquals(1, principalSet.size());
+        Principal principal = principalSet.iterator().next();
+        Assertions.assertTrue(principal instanceof UserPrincipal, "principal must be a UserPrincipal");
+        UserPrincipal userPrincipal = (UserPrincipal) principal;
+        Assertions.assertEquals(ACTIVE_COMPANY_ID, userPrincipal.getCompanyId(),
+                "companyId claim round-trip must carry the active company through the token");
+    }
+
+    /**
+     * Multitenancy Tassello 1 — backward-compat WITHOUT tenant: an
+     * {@link it.water.core.api.security.Authenticable} whose {@code getActiveCompanyId()} returns
+     * null (the default / legacy behaviour) must produce a token with NO {@code companyId} claim
+     * at all (asserted by parsing the raw signed JWT claims), and {@code getPrincipals(token)} must
+     * map back a {@link UserPrincipal} with a null {@code companyId}.
+     */
+    @Test
+    void testReleaseJWTWithoutActiveCompany_noCompanyIdClaimEmitted() throws ParseException {
+        TestUser u = new TestUser("legacyUser", Collections.emptySet());
+        String token = getJwtTokenService().generateJwtToken(u);
+        Assertions.assertNotNull(token);
+
+        //decode the signed JWT claims directly: the companyId claim must be entirely absent
+        SignedJWT signedJWT = SignedJWT.parse(token);
+        Assertions.assertNull(signedJWT.getJWTClaimsSet().getClaim(JWTConstants.JWT_CLAIM_COMPANY_ID),
+                "companyId claim must be entirely absent when there is no active company (backward compat)");
+
+        Set<Principal> principalSet = getJwtTokenService().getPrincipals(token);
+        Assertions.assertEquals(1, principalSet.size());
+        Principal principal = principalSet.iterator().next();
+        Assertions.assertTrue(principal instanceof UserPrincipal, "principal must be a UserPrincipal");
+        UserPrincipal userPrincipal = (UserPrincipal) principal;
+        Assertions.assertNull(userPrincipal.getCompanyId(),
+                "getPrincipals must map back a null companyId when the claim was never emitted");
+    }
+
+    /**
+     * Multitenancy Tassello 3 (see multitenancy-analysis-proposal.md, section 9) — round-trip WITH
+     * impersonation: an {@link it.water.core.api.security.Authenticable} whose
+     * {@code getImpersonatedBy()} returns a non-null value must produce a token that carries that
+     * value in the {@code impersonatedBy} claim, and {@code getPrincipals(token)} must map it back
+     * onto {@link UserPrincipal#getImpersonatedBy()}.
+     */
+    @Test
+    void testReleaseJWTWithImpersonation_roundTripCarriesImpersonatedBy() {
+        final String IMPERSONATED_BY = "adminUser";
+        TestUser u = new TestUser("targetUser", Collections.emptySet(), null, IMPERSONATED_BY);
+        String token = getJwtTokenService().generateJwtToken(u);
+        Assertions.assertNotNull(token);
+        //validating generated token
+        Assertions.assertTrue(getJwtTokenService().validateToken(Collections.singletonList(TestUser.class.getName()), token));
+        Set<Principal> principalSet = getJwtTokenService().getPrincipals(token);
+        Assertions.assertEquals(1, principalSet.size());
+        Principal principal = principalSet.iterator().next();
+        Assertions.assertTrue(principal instanceof UserPrincipal, "principal must be a UserPrincipal");
+        UserPrincipal userPrincipal = (UserPrincipal) principal;
+        Assertions.assertEquals(IMPERSONATED_BY, userPrincipal.getImpersonatedBy(),
+                "impersonatedBy claim round-trip must carry the caller's username through the token");
+    }
+
+    /**
+     * Multitenancy Tassello 3 — backward-compat WITHOUT impersonation: an
+     * {@link it.water.core.api.security.Authenticable} whose {@code getImpersonatedBy()} returns
+     * null (the default / genuine-login behaviour) must produce a token with NO
+     * {@code impersonatedBy} claim at all (asserted by parsing the raw signed JWT claims), and
+     * {@code getPrincipals(token)} must map back a {@link UserPrincipal} with a null
+     * {@code impersonatedBy}.
+     */
+    @Test
+    void testReleaseJWTWithoutImpersonation_noImpersonatedByClaimEmitted() throws ParseException {
+        TestUser u = new TestUser("genuineUser", Collections.emptySet());
+        String token = getJwtTokenService().generateJwtToken(u);
+        Assertions.assertNotNull(token);
+
+        //decode the signed JWT claims directly: the impersonatedBy claim must be entirely absent
+        SignedJWT signedJWT = SignedJWT.parse(token);
+        Assertions.assertNull(signedJWT.getJWTClaimsSet().getClaim(JWTConstants.JWT_CLAIM_IMPERSONATED_BY),
+                "impersonatedBy claim must be entirely absent for a genuine (non-impersonated) login");
+
+        Set<Principal> principalSet = getJwtTokenService().getPrincipals(token);
+        Assertions.assertEquals(1, principalSet.size());
+        Principal principal = principalSet.iterator().next();
+        Assertions.assertTrue(principal instanceof UserPrincipal, "principal must be a UserPrincipal");
+        UserPrincipal userPrincipal = (UserPrincipal) principal;
+        Assertions.assertNull(userPrincipal.getImpersonatedBy(),
+                "getPrincipals must map back a null impersonatedBy when the claim was never emitted");
     }
 
     @Test

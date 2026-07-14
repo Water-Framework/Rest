@@ -23,6 +23,8 @@ public class JWTConstants {
     public static final String JWT_CLAIM_ROLES = "roles";
     public static final String JWT_CLAIM_LOGGED_ENTITY_ID = "loggedEntityId";
     public static final String JWT_CLAIM_IS_ADMIN = "isAdmin";
+    public static final String JWT_CLAIM_COMPANY_ID = "companyId";
+    public static final String JWT_CLAIM_IMPERSONATED_BY = "impersonatedBy";
     public static final String JWT_PROP_VALIDATION_ENABLED = "water.rest.security.jwt.validate";
     public static final String JWT_PROP_VALIDATE_BY_JWS = "water.rest.security.jwt.validate.by.jws";
     public static final String JWT_PROP_VALIDATE_BY_JWS_KEY_ID = "water.service.rest.security.jwt.validate.by.jws.key.id";

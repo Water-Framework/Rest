@@ -21,12 +21,49 @@ import java.util.Set;
 
 import it.water.core.api.model.Role;
 import it.water.core.api.model.User;
-import lombok.AllArgsConstructor;
 
-@AllArgsConstructor
 public class TestUser implements User {
     private String screenName;
     private Set<TestRole> roles;
+    //Multitenancy Tassello 1: optional active company (tenant) for this authenticable stub.
+    //Defaults to null (no tenant) so all pre-existing 2-arg call sites keep their legacy behaviour.
+    private Long activeCompanyId;
+    //Multitenancy Tassello 3: optional impersonation marker for this authenticable stub.
+    //Defaults to null (genuine login) so all pre-existing 2/3-arg call sites keep their legacy behaviour.
+    private String impersonatedBy;
+
+    public TestUser(String screenName, Set<TestRole> roles) {
+        this(screenName, roles, null);
+    }
+
+    public TestUser(String screenName, Set<TestRole> roles, Long activeCompanyId) {
+        this(screenName, roles, activeCompanyId, null);
+    }
+
+    public TestUser(String screenName, Set<TestRole> roles, Long activeCompanyId, String impersonatedBy) {
+        this.screenName = screenName;
+        this.roles = roles;
+        this.activeCompanyId = activeCompanyId;
+        this.impersonatedBy = impersonatedBy;
+    }
+
+    /**
+     * Multitenancy Tassello 1: exposes the active company (tenant) for this test authenticable,
+     * defaulting to null (no tenant) so pre-existing usages remain single-tenant.
+     */
+    @Override
+    public Long getActiveCompanyId() {
+        return activeCompanyId;
+    }
+
+    /**
+     * Multitenancy Tassello 3: exposes the impersonation marker for this test authenticable,
+     * defaulting to null (genuine login) so pre-existing usages remain non-impersonated.
+     */
+    @Override
+    public String getImpersonatedBy() {
+        return impersonatedBy;
+    }
 
     @Override
     public String getScreenNameFieldName() {

@@ -270,10 +270,12 @@ public class NimbusJwtTokenService implements JwtTokenService {
                 String user = claimsSet.getSubject();
                 boolean isAdmin = claimsSet.getBooleanClaim(JWTConstants.JWT_CLAIM_IS_ADMIN);
                 long loggedEntityId = claimsSet.getLongClaim(JWTConstants.JWT_CLAIM_LOGGED_ENTITY_ID);
+                Long companyId = claimsSet.getLongClaim(JWTConstants.JWT_CLAIM_COMPANY_ID);
+                String impersonatedBy = claimsSet.getStringClaim(JWTConstants.JWT_CLAIM_IMPERSONATED_BY);
                 if (rolesNames != null && !rolesNames.isEmpty())
                     rolesNames.forEach(role -> principals.add(new RolePrincipal(role)));
                 if (user != null && !user.isBlank()) {
-                    principals.add(new it.water.core.security.model.principal.UserPrincipal(user, isAdmin, loggedEntityId, claimsSet.getSubject()));
+                    principals.add(new it.water.core.security.model.principal.UserPrincipal(user, isAdmin, loggedEntityId, claimsSet.getSubject(), companyId, impersonatedBy));
                 }
                 return principals;
             }
@@ -367,6 +369,11 @@ public class NimbusJwtTokenService implements JwtTokenService {
         builder.claim(JWTConstants.JWT_CLAIM_ROLES, roleNames)
                 .claim(JWTConstants.JWT_CLAIM_IS_ADMIN, authenticable.isAdmin())
                 .claim(JWTConstants.JWT_CLAIM_LOGGED_ENTITY_ID, authenticable.getLoggedEntityId());
+        if (authenticable.getActiveCompanyId() != null)
+            builder.claim(JWTConstants.JWT_CLAIM_COMPANY_ID, authenticable.getActiveCompanyId());
+        //impersonation marker: emitted ONLY for impersonation tokens so genuine-login tokens stay byte-identical
+        if (authenticable.getImpersonatedBy() != null)
+            builder.claim(JWTConstants.JWT_CLAIM_IMPERSONATED_BY, authenticable.getImpersonatedBy());
         builder.issuer(authenticable.getIssuer());
         //audience (aud): use the configured audience when present, otherwise default to the issuer so
         //the claim is never empty and generation/validation stay symmetric.
