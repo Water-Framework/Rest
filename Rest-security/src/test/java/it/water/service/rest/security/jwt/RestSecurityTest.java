@@ -157,7 +157,7 @@ class RestSecurityTest implements Service {
     }
 
     /**
-     * Multitenancy Tassello 1 (see multitenancy-analysis-proposal.md, section 9) — round-trip WITH
+     * Multitenancy Tassello 1 (see the `multitenancy-knowledge` skill, section 9) — round-trip WITH
      * tenant: an {@link it.water.core.api.security.Authenticable} whose {@code getActiveCompanyId()}
      * returns a non-null value must produce a token that carries that value in the
      * {@code companyId} claim, and {@code getPrincipals(token)} must map it back onto
@@ -208,7 +208,7 @@ class RestSecurityTest implements Service {
     }
 
     /**
-     * Multitenancy Tassello 3 (see multitenancy-analysis-proposal.md, section 9) — round-trip WITH
+     * Multitenancy Tassello 3 (see the `multitenancy-knowledge` skill, section 9) — round-trip WITH
      * impersonation: an {@link it.water.core.api.security.Authenticable} whose
      * {@code getImpersonatedBy()} returns a non-null value must produce a token that carries that
      * value in the {@code impersonatedBy} claim, and {@code getPrincipals(token)} must map it back
